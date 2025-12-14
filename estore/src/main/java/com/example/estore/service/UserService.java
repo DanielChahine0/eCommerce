@@ -8,6 +8,7 @@ import com.example.estore.model.User;
 import com.example.estore.repository.AddressRepository;
 import com.example.estore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,11 +21,14 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository, AddressRepository addressRepository) {
+    public UserService(UserRepository userRepository, AddressRepository addressRepository,
+            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserDTO createUser(CreateUserRequest request) {
@@ -118,6 +122,47 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
         userRepository.delete(user);
+    }
+
+    public User registerUser(RegisterRequest request) {
+        // Validate email uniqueness
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new DuplicateResourceException("User", "email", request.getEmail());
+        }
+
+        // Validate username uniqueness
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new DuplicateResourceException("User", "username", request.getUsername());
+        }
+
+        // Create and save address
+        Address address = new Address(
+                request.getAddress().getZip(),
+                request.getAddress().getCountry(),
+                request.getAddress().getStreet(),
+                request.getAddress().getProvince());
+        address = addressRepository.save(address);
+
+        // Create and save user with hashed password
+        User user = new User(
+                request.getUsername(),
+                request.getRole(),
+                address,
+                request.getEmail(),
+                passwordEncoder.encode(request.getPassword()));
+
+        return userRepository.save(user);
+    }
+
+    public User authenticateUser(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+
+        return user;
     }
 
     private UserDTO convertToDTO(User user) {

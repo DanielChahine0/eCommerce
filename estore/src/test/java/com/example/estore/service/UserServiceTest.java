@@ -58,10 +58,8 @@ class UserServiceTest {
         userService.createUser(validUserRequest);
 
         validUserRequest.setUsername("different_user");
-        
-        assertThrows(DuplicateResourceException.class, () -> 
-            userService.createUser(validUserRequest)
-        );
+
+        assertThrows(DuplicateResourceException.class, () -> userService.createUser(validUserRequest));
     }
 
     @Test
@@ -69,10 +67,8 @@ class UserServiceTest {
         userService.createUser(validUserRequest);
 
         validUserRequest.setEmail("different@example.com");
-        
-        assertThrows(DuplicateResourceException.class, () -> 
-            userService.createUser(validUserRequest)
-        );
+
+        assertThrows(DuplicateResourceException.class, () -> userService.createUser(validUserRequest));
     }
 
     @Test
@@ -87,9 +83,7 @@ class UserServiceTest {
 
     @Test
     void testGetUserById_NotFound() {
-        assertThrows(ResourceNotFoundException.class, () -> 
-            userService.getUserById(9999)
-        );
+        assertThrows(ResourceNotFoundException.class, () -> userService.getUserById(9999));
     }
 
     @Test
@@ -103,9 +97,7 @@ class UserServiceTest {
 
     @Test
     void testGetUserByEmail_NotFound() {
-        assertThrows(ResourceNotFoundException.class, () -> 
-            userService.getUserByEmail("nonexistent@example.com")
-        );
+        assertThrows(ResourceNotFoundException.class, () -> userService.getUserByEmail("nonexistent@example.com"));
     }
 
     @Test
@@ -124,12 +116,10 @@ class UserServiceTest {
     @Test
     void testDeleteUser_Success() {
         UserDTO created = userService.createUser(validUserRequest);
-        
+
         userService.deleteUser(created.getId());
 
-        assertThrows(ResourceNotFoundException.class, () -> 
-            userService.getUserById(created.getId())
-        );
+        assertThrows(ResourceNotFoundException.class, () -> userService.getUserById(created.getId()));
     }
 
     @Test
