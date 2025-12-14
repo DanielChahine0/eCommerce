@@ -5,6 +5,7 @@ import com.example.estore.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * DataInitializer - Populates the database with sample data on application
@@ -22,7 +23,8 @@ public class DataInitializer {
             CategoryRepository categoryRepository,
             ProductRepository productRepository,
             AddressRepository addressRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
 
         return args -> {
             // Create Brands
@@ -104,19 +106,22 @@ public class DataInitializer {
                     "admin",
                     "admin",
                     addr1,
-                    "admin@estore.com"));
+                    "admin@estore.com",
+                    passwordEncoder.encode("admin123")));
 
             userRepository.save(new User(
                     "john_doe",
                     "customer",
                     addr2,
-                    "john@example.com"));
+                    "john@example.com",
+                    passwordEncoder.encode("password123")));
 
             userRepository.save(new User(
                     "jane_smith",
                     "customer",
                     addr1,
-                    "jane@example.com"));
+                    "jane@example.com",
+                    passwordEncoder.encode("password123")));
 
             System.out.println("✅ Database initialized with sample data!");
             System.out.println("📦 Products: 6");
