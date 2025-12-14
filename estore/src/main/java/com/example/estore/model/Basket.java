@@ -10,15 +10,24 @@ public class Basket {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    @Column(nullable = false)
+    private Integer quantity = 1;
 
     // Constructors
     public Basket() {
     }
 
-    public Basket(Product product) {
+    public Basket(User user, Product product, Integer quantity) {
+        this.user = user;
         this.product = product;
+        this.quantity = quantity;
     }
 
     // Getters and Setters
@@ -30,11 +39,27 @@ public class Basket {
         this.id = id;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public Product getProduct() {
         return product;
     }
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 }
