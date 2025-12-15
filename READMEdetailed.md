@@ -5,6 +5,25 @@
 - Backend: Java Spring Boot
 - Database: MySQL
 
+## Docker Setup
+To install the docker environment, run:
+```bash
+docker-compose up -d
+```
+
+then to get into the database container, run:
+```
+docker-compose exec -it postgresql-spring-boot bash
+
+psql -U daniel
+```
+
+After that, I had to create a database using:
+```sql
+create database ecom
+```
+
+
 ## SQL Schema
 ```sql
 // Use DBML to define your database structure
