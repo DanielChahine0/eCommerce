@@ -1,0 +1,11 @@
+### Checking all the roles
+GET http://localhost:8080/api/roles
+
+### Creating a new role
+POST http://localhost:8080/api/roles
+Content-Type: application/json
+
+{
+  "name": "user",
+  "description": "This is just a normal consumer user"
+}

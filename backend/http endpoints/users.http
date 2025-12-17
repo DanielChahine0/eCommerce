@@ -1,0 +1,13 @@
+### Get users
+GET http://localhost:8080/api/users
+
+### Register a new user
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "username": "new_user",
+  "email": "email@example.com",
+  "password": "securepassword",
+  "roleId": 1
+}
