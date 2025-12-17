@@ -1,0 +1,46 @@
+### Register a new user
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "password123",
+  "roleId": 1,
+  "phoneNumber": "123-456-7890",
+  "address": {
+    "zip": "12345",
+    "country": "USA",
+    "street": "123 Main St",
+    "province": "NY"
+  }
+}
+
+###
+
+### Login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+
+###
+
+### Validate Token (replace YOUR_TOKEN_HERE with actual token from login response)
+GET http://localhost:8080/api/auth/validate
+Authorization: Bearer YOUR_TOKEN_HERE
+
+###
+
+### Get all products (protected endpoint - requires authentication)
+GET http://localhost:8080/api/products
+Authorization: Bearer YOUR_TOKEN_HERE
+
+###
+
+### Get current user info (using token)
+GET http://localhost:8080/api/auth/validate
+Authorization: Bearer YOUR_TOKEN_HERE

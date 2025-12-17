@@ -12,6 +12,7 @@ import com.example.model.User;
 import com.example.repository.RoleRepository;
 import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,9 @@ public class UserService {
     
     @Autowired
     private RoleRepository roleRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     
     public UserDTO createUser(CreateUserRequest request) {
         // Check for duplicate email
@@ -62,6 +66,7 @@ public class UserService {
         User user = new User(
             request.getUsername(),
             request.getEmail(),
+            passwordEncoder.encode(request.getPassword()),
             role,
             request.getPhoneNumber(),
             address
@@ -123,6 +128,11 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
         
+        // Update password if provided
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        
         // Update role
         Role role = roleRepository.findById(request.getRoleId())
             .orElseThrow(() -> new ResourceNotFoundException(
@@ -162,7 +172,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
     
-    private UserDTO convertToDTO(User user) {
+    public UserDTO convertToDTO(User user) {
         AddressDTO addressDTO = null;
         if (user.getAddress() != null) {
             addressDTO = new AddressDTO(
