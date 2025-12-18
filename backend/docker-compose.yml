@@ -16,7 +16,11 @@ services:
       - estore-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-daniel} -d ${DB_NAME:-postgres}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USERNAME:-daniel} -d ${DB_NAME:-postgres}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5

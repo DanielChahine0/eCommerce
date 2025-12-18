@@ -33,8 +33,7 @@ public class SecurityConfig {
             JwtAuthenticationFilter jwtAuthenticationFilter,
             UserDetailsService userDetailsService,
             JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-            CorsConfigurationSource corsConfigurationSource
-    ) {
+            CorsConfigurationSource corsConfigurationSource) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;

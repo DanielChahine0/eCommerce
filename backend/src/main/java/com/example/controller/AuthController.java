@@ -27,8 +27,7 @@ public class AuthController {
     public AuthController(
             AuthenticationManager authenticationManager,
             JwtService jwtService,
-            AuthService authService
-    ) {
+            AuthService authService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.authService = authService;
@@ -57,13 +56,13 @@ public class AuthController {
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
             UserDTO user = authService.registerUser(registerRequest);
-            
+
             // Authenticate the newly registered user to generate token
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             user.getEmail(),
                             registerRequest.getPassword()));
-            
+
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String token = jwtService.generateToken(userDetails);
 
