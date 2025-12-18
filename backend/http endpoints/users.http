@@ -1,13 +1,78 @@
-### Get users
-GET http://localhost:8080/api/users
+@baseUrl = http://localhost:8080
+@token = YOUR_TOKEN_HERE
 
-### Register a new user
-POST http://localhost:8080/api/users
+### ========================================
+### USER ENDPOINTS
+### ========================================
+
+### 1. Get all users
+GET {{baseUrl}}/api/users
+Authorization: Bearer {{token}}
+
+###
+
+### 2. Create a new user
+POST {{baseUrl}}/api/users
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
-  "username": "new_user",
-  "email": "email@example.com",
+  "username": "newuser",
+  "email": "newuser@example.com",
   "password": "securepassword",
-  "roleId": 1
+  "roleId": 1,
+  "phoneNumber": "555-123-4567",
+  "address": {
+    "zip": "10001",
+    "country": "USA",
+    "street": "789 User St",
+    "province": "NY"
+  }
 }
+
+###
+
+### 3. Get user by ID (replace {id} with actual user ID)
+GET {{baseUrl}}/api/users/1
+Authorization: Bearer {{token}}
+
+###
+
+### 4. Get user by email
+GET {{baseUrl}}/api/users/email/john@example.com
+Authorization: Bearer {{token}}
+
+###
+
+### 5. Get users by role ID
+GET {{baseUrl}}/api/users/role/1
+Authorization: Bearer {{token}}
+
+###
+
+### 6. Update user (replace {id} with actual user ID)
+PUT {{baseUrl}}/api/users/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "username": "johndoe_updated",
+  "email": "john@example.com",
+  "password": "newpassword123",
+  "roleId": 1,
+  "phoneNumber": "555-999-8888",
+  "address": {
+    "zip": "12345",
+    "country": "USA",
+    "street": "123 Updated Main St",
+    "province": "NY"
+  }
+}
+
+###
+
+### 7. Delete user (replace {id} with actual user ID)
+DELETE {{baseUrl}}/api/users/1
+Authorization: Bearer {{token}}
+
+###

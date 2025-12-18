@@ -1,0 +1,63 @@
+@baseUrl = http://localhost:8080
+@token = YOUR_TOKEN_HERE
+@userId = 1
+
+### ========================================
+### BASKET ENDPOINTS
+### ========================================
+
+### 1. Add product to basket
+POST {{baseUrl}}/api/basket
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId": {{userId}},
+  "productId": 1,
+  "quantity": 2
+}
+
+###
+
+### 2. Add another product to basket
+POST {{baseUrl}}/api/basket
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId": {{userId}},
+  "productId": 2,
+  "quantity": 1
+}
+
+###
+
+### 3. Get user's basket (replace {userId} with actual user ID)
+GET {{baseUrl}}/api/basket/user/{{userId}}
+Authorization: Bearer {{token}}
+
+###
+
+### 4. Get basket item count for user
+GET {{baseUrl}}/api/basket/user/{{userId}}/count
+Authorization: Bearer {{token}}
+
+###
+
+### 5. Update basket item quantity (replace {basketItemId} with actual basket item ID)
+PATCH {{baseUrl}}/api/basket/1?quantity=5
+Authorization: Bearer {{token}}
+
+###
+
+### 6. Remove item from basket (replace {basketItemId} with actual basket item ID)
+DELETE {{baseUrl}}/api/basket/1
+Authorization: Bearer {{token}}
+
+###
+
+### 7. Clear all items from user's basket
+DELETE {{baseUrl}}/api/basket/user/{{userId}}
+Authorization: Bearer {{token}}
+
+###
