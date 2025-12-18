@@ -97,6 +97,15 @@ export default function Profile() {
               >
                 My Orders
               </button>
+
+               <button
+                onClick={() => setActiveTab('billing')}
+                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all ${
+                  activeTab === 'billing' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                Billing
+              </button>
             </nav>
           </div>
         </aside>
@@ -109,7 +118,7 @@ export default function Profile() {
               onSubmit={handleUpdateProfile} 
             />
           ) : (
-            <OrderHistory orders={orders} loading={loadingOrders} />
+            <Billing orders={orders} loading={loadingOrders} />
           )}
         </main>
       </div>
@@ -221,6 +230,46 @@ function ProfileForm({ formData, setFormData, onSubmit }) {
 }
 
 function OrderHistory({ orders, loading }) {
+  if (loading) return <div className="animate-pulse space-y-4">
+    {[...Array(3)].map((_, i) => <div key={i} className="h-32 bg-slate-100 rounded-2xl" />)}
+  </div>;
+
+  return (
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <h3 className="text-2xl font-bold text-slate-900 mb-6">Order History</h3>
+      {orders.map(order => (
+        <div key={order.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:border-indigo-100 transition-colors">
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Order #{order.id}</p>
+              <p className="text-sm text-slate-500 font-medium">{new Date(order.timeCreated).toLocaleDateString()}</p>
+            </div>
+            <span className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-wide ${
+              order.status === 'PENDING' ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700'
+            }`}>
+              {order.status}
+            </span>
+          </div>
+          <div className="flex justify-between items-end pt-4 border-t border-slate-50">
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Destination</p>
+              <p className="text-sm font-semibold text-slate-700">{order.address?.street}, {order.address?.province}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Total Paid</p>
+              <p className="text-xl font-black text-slate-900">${order.total?.toFixed(2)}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+
+
+
+function Billing({ orders, loading }) {
   if (loading) return <div className="animate-pulse space-y-4">
     {[...Array(3)].map((_, i) => <div key={i} className="h-32 bg-slate-100 rounded-2xl" />)}
   </div>;

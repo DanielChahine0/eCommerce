@@ -9,7 +9,11 @@ import Register from './pages/Register'
 import Admin from './pages/Admin'
 import { AuthProvider } from './context/AuthContext'
 import Profile from './pages/Profile.jsx'
+import Orders from './pages/Orders.jsx'
 
+
+
+import Footer from './components/Footer'
 
 export default function App() {
   return (
@@ -26,8 +30,11 @@ export default function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/orders" element={<Orders />} />
+
           </Routes>
         </main>
+        <Footer />
       </div>
     </AuthProvider>
   )

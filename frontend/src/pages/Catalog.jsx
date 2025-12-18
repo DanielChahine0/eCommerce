@@ -1,10 +1,22 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState,    } from 'react'
 import { api } from '../api/api'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+// Using native clickable card elements for full-size product cards
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 export default function Catalog() {
   const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate();
   
   // State for search, filter, and sort
   const [search, setSearch] = useState('')
@@ -24,25 +36,28 @@ export default function Catalog() {
     setLoading(false);
   }, []);
 
-  // Filter and Sort Logic
-  const processedProducts = useMemo(() => {
-    let filtered = products.filter(p => 
-      (categoryFilter === 'All' || p.category === categoryFilter) &&
-      (p.name.toLowerCase().includes(search.toLowerCase()) || p.brand?.toLowerCase().includes(search.toLowerCase()))
-    );
 
-    if (sortConfig === 'price-asc') filtered.sort((a, b) => a.price - b.price);
-    if (sortConfig === 'price-desc') filtered.sort((a, b) => b.price - a.price);
-    if (sortConfig === 'name-asc') filtered.sort((a, b) => a.name.localeCompare(b.name));
+  
+  useEffect(() => {
+    // In production, use api('/api/products')
+    // Simulating API fetch with mock data that includes category/brand/inventory
+    const categories = [
+      { id: "101", name: "Jewelry", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
+      { id: "102", name: "Books", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
+      { id: "103", name: "Tech", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
+      { id: "104", name: "Clothes", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
+      { id: "105", name: "Sports", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
+    ];
+    setCategories(categories);
+    setLoading(false);
+  }, []);
 
-    return filtered;
-  }, [products, search, categoryFilter, sortConfig]);
 
   if (loading) return <div className="text-center py-20">Loading Catalogue...</div>;
 
   return (
     <div className="max-w-7xl mx-auto px-4">
-      {/* Search and Sort Bar */}
+      {/* Search and Sort Bar
       <div className="flex flex-col md:flex-row gap-4 mb-8 items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
         <input 
           type="text" 
@@ -70,13 +85,31 @@ export default function Catalog() {
             <option value="name-asc">Name: A-Z</option>
           </select>
         </div>
-      </div>
+      </div> */}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {processedProducts.map(p => (
-          <Link key={p.id} to={`/product/${p.id}`} className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col">
-            <div className="aspect-[4/3] relative">
-              <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <Card className='bg-[#4E4E4E] text-white mb-8'>
+            <CardContent>
+              <div className="flex flex-col items-center text-center">
+                <div className='font-bold'>An ecommerce application made by students, for students</div>
+                <div>What are you looking for today?</div>
+            </div>
+            </CardContent>
+        </Card>
+
+
+      <p className='font-bold'>Trending Items </p>  
+      <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
+        {products.map(p => (
+          <article
+            key={p.id}
+            role="button"
+            tabIndex={0}
+            onClick={() => navigate(`/product/${p.id}`)}
+            // onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`) }}
+            className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
+          >
+            <div className="relative">
+              <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
               {p.quantity === 0 && (
                 <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
               )}
@@ -89,7 +122,64 @@ export default function Catalog() {
                 <span className="text-sm text-indigo-600 font-medium">View Details →</span>
               </div>
             </div>
-          </Link>
+          </article>
+        ))}
+      </div>
+
+
+
+       <p className='font-bold'>Search by Category</p>  
+      <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
+        {categories.map(p => (
+          <article
+            key={p.id}
+            role="button"
+            tabIndex={0}
+            //need to link to category page
+            onClick={() => navigate(`/product/${p.id}`)}
+            // onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`) }}
+            className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
+          >
+            <div className="relative">
+              <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
+            </div>
+            <div className="p-5 flex flex-col flex-grow">
+              <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
+              <div className="mt-auto flex items-center justify-between"></div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+
+
+
+       <p className='font-bold'>Trending Items </p>  
+      <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
+        {products.map(p => (
+          <article
+            key={p.id}
+            role="button"
+            tabIndex={0}
+            onClick={() => navigate(`/product/${p.id}`)}
+            // onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`) }}
+            className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
+          >
+            <div className="relative">
+              <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
+              {p.quantity === 0 && (
+                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
+              )}
+            </div>
+            <div className="p-5 flex flex-col flex-grow">
+              <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand}</span>
+              <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
+              <div className="mt-auto flex items-center justify-between">
+                <span className="text-xl font-bold text-slate-900">${p.price}</span>
+                <span className="text-sm text-indigo-600 font-medium">View Details →</span>
+              </div>
+            </div>
+          </article>
         ))}
       </div>
     </div>
