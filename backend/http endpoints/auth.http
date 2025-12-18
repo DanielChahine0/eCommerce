@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8080
-@token = bananabananabanana
+@token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJqb2huQGV4YWFzZmFzZmFzbXBmZmZsZS5jb20iLCJpYXQiOjE3NjYxMDAzNTcsImV4cCI6MTc2NjE4Njc1N30.2r0VLFQ37E-xOdb-srzlD9D9-wQqVWCIEEDqzLOjsV-MDy2ZIUirQLgzGO5eLPV0tWRoEfM_2D3sxYaobYkqaQ
 
 ### 1. Register a new user
 POST {{baseUrl}}/api/auth/register

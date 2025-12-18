@@ -2,10 +2,6 @@
 @token = YOUR_TOKEN_HERE
 @userId = 1
 
-### ========================================
-### ORDER ENDPOINTS
-### ========================================
-
 ### 1. Create a new order
 POST {{baseUrl}}/api/orders
 Content-Type: application/json
@@ -35,8 +31,6 @@ Authorization: Bearer {{token}}
   "totalAmount": 2629.97
 }
 
-###
-
 ### 2. Create order with different payment method
 POST {{baseUrl}}/api/orders
 Content-Type: application/json
@@ -61,76 +55,59 @@ Authorization: Bearer {{token}}
   "totalAmount": 1299.99
 }
 
-###
-
 ### 3. Get all orders
 GET {{baseUrl}}/api/orders
 Authorization: Bearer {{token}}
-
-###
 
 ### 4. Get order by ID (replace {id} with actual order ID)
 GET {{baseUrl}}/api/orders/1
 Authorization: Bearer {{token}}
 
-###
 
 ### 5. Get orders for specific user
 GET {{baseUrl}}/api/orders/user/{{userId}}
 Authorization: Bearer {{token}}
 
-###
 
 ### 6. Get orders by status - PENDING
 GET {{baseUrl}}/api/orders/status/PENDING
 Authorization: Bearer {{token}}
 
-###
 
 ### 7. Get orders by status - PROCESSING
 GET {{baseUrl}}/api/orders/status/PROCESSING
 Authorization: Bearer {{token}}
 
-###
-
 ### 8. Get orders by status - SHIPPED
 GET {{baseUrl}}/api/orders/status/SHIPPED
 Authorization: Bearer {{token}}
 
-###
 
 ### 9. Get orders by status - DELIVERED
 GET {{baseUrl}}/api/orders/status/DELIVERED
 Authorization: Bearer {{token}}
 
-###
 
 ### 10. Get orders by status - CANCELLED
 GET {{baseUrl}}/api/orders/status/CANCELLED
 Authorization: Bearer {{token}}
 
-###
 
 ### 11. Update order status to PROCESSING
 PATCH {{baseUrl}}/api/orders/1/status?status=PROCESSING
 Authorization: Bearer {{token}}
 
-###
 
 ### 12. Update order status to SHIPPED
 PATCH {{baseUrl}}/api/orders/1/status?status=SHIPPED
 Authorization: Bearer {{token}}
 
-###
 
 ### 13. Update order status to DELIVERED
 PATCH {{baseUrl}}/api/orders/1/status?status=DELIVERED
 Authorization: Bearer {{token}}
 
-###
 
 ### 14. Cancel order (delete)
 DELETE {{baseUrl}}/api/orders/1
 Authorization: Bearer {{token}}
-
-###

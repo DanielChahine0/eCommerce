@@ -1,21 +1,13 @@
 @baseUrl = http://localhost:8080
-@token = YOUR_TOKEN_HERE
-
-### ========================================
-### PRODUCT ENDPOINTS
-### ========================================
+@token = bananabananabanana
 
 ### 1. Get all products
 GET {{baseUrl}}/api/products
 Authorization: Bearer {{token}}
 
-###
-
 ### 2. Get all available products only
 GET {{baseUrl}}/api/products?availableOnly=true
 Authorization: Bearer {{token}}
-
-###
 
 ### 3. Create a new product
 POST {{baseUrl}}/api/products
@@ -32,8 +24,6 @@ Authorization: Bearer {{token}}
   "imageUrl": "https://example.com/images/laptop-pro-15.jpg"
 }
 
-###
-
 ### 4. Create another product
 POST {{baseUrl}}/api/products
 Content-Type: application/json
@@ -49,49 +39,33 @@ Authorization: Bearer {{token}}
   "imageUrl": "https://example.com/images/wireless-mouse.jpg"
 }
 
-###
-
 ### 5. Get product by ID (replace {id} with actual product ID)
 GET {{baseUrl}}/api/products/1
 Authorization: Bearer {{token}}
-
-###
 
 ### 6. Get products by brand ID
 GET {{baseUrl}}/api/products/brand/1
 Authorization: Bearer {{token}}
 
-###
-
 ### 7. Get products by category ID
 GET {{baseUrl}}/api/products/category/1
 Authorization: Bearer {{token}}
-
-###
 
 ### 8. Search products by name
 GET {{baseUrl}}/api/products/search?name=laptop
 Authorization: Bearer {{token}}
 
-###
-
 ### 9. Filter products by brand and category
 GET {{baseUrl}}/api/products/filter?brandId=1&categoryId=1
 Authorization: Bearer {{token}}
-
-###
 
 ### 10. Filter products by brand only
 GET {{baseUrl}}/api/products/filter?brandId=1
 Authorization: Bearer {{token}}
 
-###
-
 ### 11. Filter products by category only
 GET {{baseUrl}}/api/products/filter?categoryId=2
 Authorization: Bearer {{token}}
-
-###
 
 ### 12. Update product (replace {id} with actual product ID)
 PUT {{baseUrl}}/api/products/1
@@ -108,16 +82,11 @@ Authorization: Bearer {{token}}
   "imageUrl": "https://example.com/images/laptop-pro-15-updated.jpg"
 }
 
-###
-
 ### 13. Update product quantity only
 PATCH {{baseUrl}}/api/products/1/quantity?quantity=100
 Authorization: Bearer {{token}}
-
-###
 
 ### 14. Delete product (replace {id} with actual product ID)
 DELETE {{baseUrl}}/api/products/1
 Authorization: Bearer {{token}}
 
-###
