@@ -45,7 +45,7 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-row justify-between items-center h-16">
           {/* Logo Section */}
           <Button onClick={() => navigate("/")} variant="outline" size="icon" aria-label="Submit">
@@ -97,7 +97,8 @@ export default function Navbar() {
                             </DropdownMenuItem>
                           </DropdownMenuGroup>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem>
+                          {/*Need to implent logout logic */}
+                          <DropdownMenuItem onClick={() => navigate("/login")}>
                             Log out
                           </DropdownMenuItem>
                         </DropdownMenuContent>

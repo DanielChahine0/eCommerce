@@ -56,132 +56,140 @@ export default function Catalog() {
   if (loading) return <div className="text-center py-20">Loading Catalogue...</div>;
 
   return (
-    <div className="max-w-7xl mx-auto px-4">
-      {/* Search and Sort Bar
-      <div className="flex flex-col md:flex-row gap-4 mb-8 items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-        <input 
-          type="text" 
-          placeholder="Search by name, brand, or keyword..." 
-          className="w-full md:w-96 px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none"
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <div className="flex gap-4 w-full md:w-auto">
-          <select 
-            className="px-4 py-2 rounded-lg border border-slate-200 outline-none bg-white"
-            onChange={(e) => setCategoryFilter(e.target.value)}
-          >
-            <option value="All">All Categories</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Office">Office</option>
-            <option value="Kitchen">Kitchen</option>
-          </select>
-          <select 
-            className="px-4 py-2 rounded-lg border border-slate-200 outline-none bg-white"
-            onChange={(e) => setSortConfig(e.target.value)}
-          >
-            <option value="newest">Sort By: Default</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-            <option value="name-asc">Name: A-Z</option>
-          </select>
+
+      <div className='flex flex-col items-center gap-8 mb-20'>
+          <div className='max-w-[85rem] mx-auto w-full px-4'>
+            <Card className='bg-[#4E4E4E] text-white mb-8'>
+                <CardContent>
+                  <div className="flex flex-col items-center text-center">
+                    <div className='font-bold'>An ecommerce application made by students, for students</div>
+                    <div>What are you looking for today?</div>
+                </div>
+                </CardContent>
+            </Card>
+          </div>
+
+
+          <div className="max-w-7xl mx-auto px-4">
+          {/* Search and Sort Bar
+          <div className="flex flex-col md:flex-row gap-4 mb-8 items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+            <input 
+              type="text" 
+              placeholder="Search by name, brand, or keyword..." 
+              className="w-full md:w-96 px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none"
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <div className="flex gap-4 w-full md:w-auto">
+              <select 
+                className="px-4 py-2 rounded-lg border border-slate-200 outline-none bg-white"
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="All">All Categories</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Office">Office</option>
+                <option value="Kitchen">Kitchen</option>
+              </select>
+              <select 
+                className="px-4 py-2 rounded-lg border border-slate-200 outline-none bg-white"
+                onChange={(e) => setSortConfig(e.target.value)}
+              >
+                <option value="newest">Sort By: Default</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="name-asc">Name: A-Z</option>
+              </select>
+            </div>
+          </div> */}
+
+
+
+
+          <p className='font-bold'>Trending Items </p>  
+          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
+            {products.map(p => (
+              <article
+                key={p.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(`/product/${p.id}`)}
+                // onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`) }}
+                className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
+              >
+                <div className="relative">
+                  <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
+                  {p.quantity === 0 && (
+                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
+                  )}
+                </div>
+                <div className="p-5 flex flex-col flex-grow">
+                  <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand}</span>
+                  <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
+                  <div className="mt-auto flex items-center justify-between">
+                    <span className="text-xl font-bold text-slate-900">${p.price}</span>
+                    <span className="text-sm text-indigo-600 font-medium">View Details →</span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+
+
+
+          <p className='font-bold'>Search by Category</p>  
+          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
+            {categories.map(p => (
+              <article
+                key={p.id}
+                role="button"
+                tabIndex={0}
+                //need to link to category page
+                onClick={() => navigate(`/product/${p.id}`)}
+                // onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`) }}
+                className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
+              >
+                <div className="relative">
+                  <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
+                </div>
+                <div className="p-5 flex flex-col flex-grow">
+                  <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
+                  <div className="mt-auto flex items-center justify-between"></div>
+                </div>
+              </article>
+            ))}
+          </div>
+
+
+
+
+          <p className='font-bold'>Trending Items </p>  
+          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
+            {products.map(p => (
+              <article
+                key={p.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(`/product/${p.id}`)}
+                // onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`) }}
+                className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
+              >
+                <div className="relative">
+                  <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
+                  {p.quantity === 0 && (
+                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
+                  )}
+                </div>
+                <div className="p-5 flex flex-col flex-grow">
+                  <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand}</span>
+                  <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
+                  <div className="mt-auto flex items-center justify-between">
+                    <span className="text-xl font-bold text-slate-900">${p.price}</span>
+                    <span className="text-sm text-indigo-600 font-medium">View Details →</span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
-      </div> */}
-
-          <Card className='bg-[#4E4E4E] text-white mb-8'>
-            <CardContent>
-              <div className="flex flex-col items-center text-center">
-                <div className='font-bold'>An ecommerce application made by students, for students</div>
-                <div>What are you looking for today?</div>
-            </div>
-            </CardContent>
-        </Card>
-
-
-      <p className='font-bold'>Trending Items </p>  
-      <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
-        {products.map(p => (
-          <article
-            key={p.id}
-            role="button"
-            tabIndex={0}
-            onClick={() => navigate(`/product/${p.id}`)}
-            // onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`) }}
-            className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
-          >
-            <div className="relative">
-              <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
-              {p.quantity === 0 && (
-                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
-              )}
-            </div>
-            <div className="p-5 flex flex-col flex-grow">
-              <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand}</span>
-              <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
-              <div className="mt-auto flex items-center justify-between">
-                <span className="text-xl font-bold text-slate-900">${p.price}</span>
-                <span className="text-sm text-indigo-600 font-medium">View Details →</span>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-
-
-
-       <p className='font-bold'>Search by Category</p>  
-      <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
-        {categories.map(p => (
-          <article
-            key={p.id}
-            role="button"
-            tabIndex={0}
-            //need to link to category page
-            onClick={() => navigate(`/product/${p.id}`)}
-            // onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`) }}
-            className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
-          >
-            <div className="relative">
-              <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
-            </div>
-            <div className="p-5 flex flex-col flex-grow">
-              <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
-              <div className="mt-auto flex items-center justify-between"></div>
-            </div>
-          </article>
-        ))}
-      </div>
-
-
-
-
-       <p className='font-bold'>Trending Items </p>  
-      <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
-        {products.map(p => (
-          <article
-            key={p.id}
-            role="button"
-            tabIndex={0}
-            onClick={() => navigate(`/product/${p.id}`)}
-            // onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`) }}
-            className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
-          >
-            <div className="relative">
-              <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
-              {p.quantity === 0 && (
-                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
-              )}
-            </div>
-            <div className="p-5 flex flex-col flex-grow">
-              <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand}</span>
-              <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
-              <div className="mt-auto flex items-center justify-between">
-                <span className="text-xl font-bold text-slate-900">${p.price}</span>
-                <span className="text-sm text-indigo-600 font-medium">View Details →</span>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-    </div>
+     </div>
   )
 }

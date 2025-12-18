@@ -10,7 +10,7 @@ import Admin from './pages/Admin'
 import { AuthProvider } from './context/AuthContext'
 import Profile from './pages/Profile.jsx'
 import Orders from './pages/Orders.jsx'
-
+import SearchProduct from './pages/SearchProduct.jsx'
 
 
 import Footer from './components/Footer'
@@ -20,9 +20,10 @@ export default function App() {
     <AuthProvider>
       <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
         <Navbar />
-        <main className="pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-12">
+        <main className="pt-20 px-4 sm:px-6 lg:px-8 mx-auto pb-12">
           <Routes>
             <Route path="/" element={<Catalog />} />
+            <Route path="/search/:name" element={<SearchProduct />} />
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
