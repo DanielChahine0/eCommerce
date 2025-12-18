@@ -1,22 +1,55 @@
 services:
+  # PostgreSQL Database
   db:
-    container_name: postgres-spring-boot
-    image: postgres:latest
+    container_name: postgres-estore
+    image: postgres:16-alpine
     environment:
-      POSTGRES_USER: daniel
-      POSTGRES_PASSWORD: password
-      PGDATA: /data/postgres
+      POSTGRES_USER: ${DB_USERNAME:-daniel}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-postgres}
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - db:/data/postgres
+      - postgres-data:/var/lib/postgresql/data
     ports:
-      - "5332:5432"
+      - "${DB_PORT:-5332}:5432"
     networks:
-      - db
+      - estore-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-daniel} -d ${DB_NAME:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Application
+  app:
+    container_name: estore-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-postgres}
+      DB_USERNAME: ${DB_USERNAME:-daniel}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+      JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970337336763979244226452948404D635166546A576E5A7234753778214125442A}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      DDL_AUTO: ${DDL_AUTO:-update}
+      FLYWAY_ENABLED: ${FLYWAY_ENABLED:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - estore-network
     restart: unless-stopped
 
 networks:
-  db:
+  estore-network:
     driver: bridge
 
 volumes:
-  db:
+  postgres-data:
