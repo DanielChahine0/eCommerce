@@ -1,10 +1,6 @@
 @baseUrl = http://localhost:8080
 @token = bananabananabanana
 
-### ========================================
-### AUTHENTICATION ENDPOINTS
-### ========================================
-
 ### 1. Register a new user
 POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
@@ -23,7 +19,24 @@ Content-Type: application/json
   }
 }
 
-###
+### 1. Register a new user
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "johnfdfasfsfdoe",
+  "email": "john@exaasfasfasmpfffle.com",
+  "password": "password123",
+  "roleId": 1,
+  "phoneNumber": "123-456-7890",
+  "address": {
+    "zip": "12345",
+    "country": "USA",
+    "street": "123 Main St",
+    "province": "NY"
+  }
+}
+
 
 ### 2. Register admin user
 POST {{baseUrl}}/api/auth/register
@@ -65,10 +78,8 @@ Content-Type: application/json
   "password": "admin123"
 }
 
-###
 
 ### 5. Validate Token (Get current user info)
 GET {{baseUrl}}/api/auth/validate
 Authorization: Bearer {{token}}
 
-###

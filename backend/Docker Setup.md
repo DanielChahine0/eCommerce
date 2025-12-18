@@ -48,8 +48,7 @@ Create migrations in `src/main/resources/db/migration/`:
 - `V1__initial_schema.sql`
 - `V2__add_products_table.sql`
 
-## Common Issues
-
+## Problems
 **Connection refused to localhost:5332**
 - Check if db container is running: `docker-compose ps`
 - Use service name `db` inside Docker, not `localhost`

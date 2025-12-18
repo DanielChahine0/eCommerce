@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8080
-@token = YOUR_TOKEN_HERE
+@token = bananabananabanana
 @userId = 1
 
 ### ========================================
