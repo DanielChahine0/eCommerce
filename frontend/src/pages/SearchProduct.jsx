@@ -1,127 +1,240 @@
 import { Button } from "@/components/ui/button";
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9,10];
-const categories = ['Electronics', 'Books', 'Clothes', 'Sports', 'Home', 'Toys'];
-const brands = ['Adidas', 'Nike', 'Puma', 'Reebok', 'Under Armour'];
-
+const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const categories = ["Electronics", "Books", "Clothes", "Sports", "Home", "Toys"];
+const brands = ["Adidas", "Nike", "Puma", "Reebok", "Under Armour"];
 
 export default function SearchProduct() {
-  const id = useId();
-  const [value, setValue] = useState(7);
+  const uid = useId();
+
   const min = 1;
   const max = 100;
   const step = 1;
 
-  return(
+  const [value, setValue] = useState(7);
+  const [includeOOS, setIncludeOOS] = useState(false);
+  const [category, setCategory] = useState(categories[0]);
+  const [selectedBrands, setSelectedBrands] = useState(new Set());
+  const [sortBy, setSortBy] = useState("Price");
+  const navigate = useNavigate();
 
-    <div className="bg-[#A2A2A2]">
-            <div className="max-w-7xl w-full bg-[#A2A2A2] mx-auto flex flex-col">
-      <div className="h-10 w-full bg-[#A2A2A2]" />
-
-      <div className="flex">
-        {/* left sidebar strip */}
-        <aside className="w-64 [&>div]:mt-2 bg-[#A2A2A2]">
-
-                <div>
-                    <label htmlFor={id} className="block text-sm font-semibold text-slate-800">
-                        Price Range: ${value}
-                    </label>
-                    <input
-                        id={id}
-                        type="range"
-                        min={min}
-                        max={max}
-                        step={step}
-                        value={value}
-                        onChange={(e) => setValue(Number(e.target.value))}
-                        className="mt-3 w-full accent-indigo-600"
-                    />
-                </div>
-
-                <div>
-                    <p>Avaliability</p>
-                    <input type="checkbox" id="inStock" name="inStock" value="inStock"/>
-                    <label className='ml-2' htmlFor="inStock">Include Out of Stock</label>
-                </div>
-                
-                <div>
-                    <p>Category</p>
-                    <select name="category" id="category" className="rounded-md border border-slate-300 bg-white px-2 ml-2 py-1 text-sm">
-                        {categories.map((c) => (
-                            <option key={c} value={c}>
-                                {c}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-
-                <div>
-                    <p>Brands</p>
-                    {brands.map((b) => {
-                        const id = `brand-${b}`; // or `brand-${index}` if b can repeat
-                        return (
-                        <div key={b} className="flex items-center">
-                            <input id={id} name="brands" type="checkbox" value={b} />
-                            <label htmlFor={id} className="ml-2">{b}</label>
-                        </div>
-                        );
-                    })}
-                </div>
-
-                <Button>
-                    Apply Filters
-                </Button>
-                
-        </aside>
-
-
-
-
-
-
-        {/* main area with centered white canvas */}
-        <main className="flex-1 p-8">
-          <div className="mx-auto max-w-5xl bg-white px-10 py-8">
-            {/* header row */}
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-slate-900">
-                Results for: <span className="font-medium">Harry Potter and the Seven Dwarves</span>
-              </p>
-
-              <label className="flex items-center gap-2 text-sm text-slate-900">
-                <span>Sort by:</span>
-                <select className="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm">
-                  <option>Price</option>
-                  <option>Title</option>
-                  <option>Newest</option>
-                </select>
-              </label>
-            </div>
-
-            {/* grid */}
-            <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-5">
-              {cards.map((id) => (
-                <div
-                  key={id}
-                  className="aspect-square rounded-xl bg-slate-200"
-                />
-              ))}
-            </div>  
-            <div className="mt-10 flex justify-center">
-              <button className="rounded-md border border-slate-400 bg-slate-100 px-4 py-2 text-sm hover:bg-slate-200">
-                Load More
-              </button>
-            </div>
-          </div>
-        </main>
-      </div>
-    </div>
-    </div>
+  const selectedBrandsArray = useMemo(
+    () => Array.from(selectedBrands),
+    [selectedBrands]
   );
 
+  const toggleBrand = (brand) => {
+    setSelectedBrands((prev) => {
+      const next = new Set(prev);
+      if (next.has(brand)) next.delete(brand);
+      else next.add(brand);
+      return next;
+    });
+  };
 
-    
+  const resetFilters = () => {
+    setValue(7);
+    setIncludeOOS(false);
+    setCategory(categories[0]);
+    setSelectedBrands(new Set());
+    setSortBy("Price");
+  };
+
+  return (
+    <div className="min-h-screen w-full bg-[#A2A2A2]">
+      <div className="mx-auto w-full max-w-7xl px-4 py-6">
+        {/* Header */}
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-wrap items-center gap-2"> 
+          </div>
+        </div>
+
+        {/* Layout */}
+        <div className="flex flex-col gap-6 lg:flex-row">
+          {/* Sidebar */}
+          <aside className="w-full lg:w-80 lg:shrink-0">
+            <div className="rounded-2xl bg-white/45 p-5 ring-1 ring-black/10 backdrop-blur">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-semibold text-slate-900">Filters</div> 
+              </div>
+
+              <div className="mt-5 space-y-6">
+                {/* Price */}
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="text-xs font-semibold text-slate-900">Price</div>
+                    <div className="rounded-full bg-slate-900 px-2 py-0.5 text-[11px] font-semibold text-white">
+                      ${value}
+                    </div>
+                  </div>
+
+                  <input
+                    type="range"
+                    min={min}
+                    max={max}
+                    step={step}
+                    value={value}
+                    onChange={(e) => setValue(Number(e.target.value))}
+                    className="w-full accent-slate-900"
+                    aria-label="Max price"
+                  />
+
+                  <div className="mt-2 flex justify-between text-[11px] text-slate-900/70">
+                    <span>${min}</span>
+                    <span>${max}</span>
+                  </div>
+                </div>
+
+                {/* Availability */}
+                <div>
+                  <div className="mb-2 text-xs font-semibold text-slate-900">Availability</div>
+                  <label className="flex items-center gap-2 px-3 py-2 text-xs text-slate-900">
+                    <input
+                      type="checkbox"
+                      checked={includeOOS}
+                      onChange={(e) => setIncludeOOS(e.target.checked)}
+                      className="h-4 w-4 accent-slate-900"
+                    />
+                    Include out of stock
+                  </label>
+                </div>
+
+                {/* Category */}
+                <div>
+                  <div className="mb-2 text-xs font-semibold text-slate-900">Category</div>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs text-slate-900 shadow-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-900/20"
+                  >
+                    {categories.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Brands */}
+                <div>
+                  <div className="mb-2 text-xs font-semibold text-slate-900">Brands</div>
+
+                  <div className="grid grid-cols-1 gap-2">
+                    {brands.map((b) => {
+                      const checkboxId = `${uid}-${b.replace(/\s+/g, "-").toLowerCase()}`;
+                      const checked = selectedBrands.has(b);
+
+                      return (
+                        <label
+                          key={b}
+                          htmlFor={checkboxId}
+                          className="flex cursor-pointer items-center gap-2 px-3 py-2 text-xs transition">
+                        
+                          <input
+                            id={checkboxId}
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleBrand(b)}
+                            className="h-4 w-4 accent-slate-900"
+                          />
+                          <span className="truncate">{b}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                  <Button className="h-10 flex-1 rounded-xl bg-slate-900 text-white hover:bg-slate-950">
+                    Apply Filters
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-10 rounded-xl border-black/15 bg-white/40 text-slate-900 hover:bg-white/55"
+                    onClick={resetFilters}
+                    type="button"
+                  >
+                    Reset
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main */}
+          <main className="flex-1">
+            <div className="rounded-2xl bg-white/92 p-6 shadow-lg ring-1 ring-black/10 backdrop-blur">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center justify-between">
+                <div className="text-sm text-slate-800"> 
+                            <div className="text-xs font-semibold tracking-wide text-slate-900/80">
+                              Search Results
+                            </div>
+                            <div className="text-lg font-semibold text-slate-900">
+                              Harry Potter and the Seven Dwarves
+                            </div>
+                            <div className="mt-1 text-xs text-slate-900/70">
+                              Showing {cards.length} items
+                            </div>
+
+                            </div>
+                                <div className="gap-2 rounded-xl bg-white/40 px-3 py-2 ring-1 ring-black/10 backdrop-blur">
+                                  <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="h-8 px-2 text-xs text-slate-900 outline-none focus:border-slate-400 "
+                                  >
+                                    <option>Price</option>
+                                    <option>Newest</option>
+                                    <option>Rating</option>
+                                </select>
+                           </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                {cards.map((n) => (
+                  <div
+                    key={n}
+                    /*<-- onClick={() => navigate("/product/id */ 
+                    onClick={() => navigate("/product/101")}
+                    className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm hover:cursor-pointer hover:shadow-md"
+                  >
+                    <div className="h-32 bg-slate-200/70" />
+                    <div className="p-3">
+                      <div className="h-3 w-4/5 rounded bg-slate-200" />
+                      <div className="mt-2 h-3 w-2/3 rounded bg-slate-200" />
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="h-6 w-16 rounded-full bg-slate-900/10" />
+                        <div className="h-6 w-10 rounded-full bg-slate-900/10" />
+                      </div>
+                    </div>
+                    <div className="border-t border-slate-200 p-3">
+                      <button
+                        type="button"
+                        className="w-full rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-slate-900/25"
+                      >
+                        View
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 flex justify-center">
+                <Button
+                  variant="outline"
+                  className="h-10 rounded-xl border-black/15 bg-white text-slate-900 hover:bg-slate-50"
+                  type="button"
+                >
+                  Load More
+                </Button>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  );
 }

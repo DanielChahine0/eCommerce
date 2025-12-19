@@ -126,7 +126,6 @@ export default function Catalog() {
                   <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
                   <div className="mt-auto flex items-center justify-between">
                     <span className="text-xl font-bold text-slate-900">${p.price}</span>
-                    <span className="text-sm text-indigo-600 font-medium">View Details →</span>
                   </div>
                 </div>
               </article>
@@ -135,7 +134,7 @@ export default function Catalog() {
 
 
 
-          <p className='font-bold'>Search by Category</p>  
+          <p className='font-bold mt-6'>Search by Category</p>  
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
             {categories.map(p => (
               <article
@@ -161,7 +160,7 @@ export default function Catalog() {
 
 
 
-          <p className='font-bold'>Trending Items </p>  
+          <p className='font-bold mt-6'>Trending Items </p>  
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
             {products.map(p => (
               <article
