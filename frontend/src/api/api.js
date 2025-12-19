@@ -26,17 +26,60 @@ export async function api(path, options = {}) {
     headers.Authorization = `Bearer ${AUTH_TOKEN}`
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const url = `${BASE_URL}${path}`
+  const config = {
     ...options,
     headers: {
       ...headers,
       ...options.headers,
     },
+  }
+
+  // Log request details for debugging
+  console.log('API Request:', {
+    url,
+    method: config.method || 'GET',
+    body: options.body ? JSON.parse(options.body) : null
   })
 
+  const res = await fetch(url, config)
+
   if (!res.ok) {
-    const errorText = await res.text()
-    throw new Error(errorText || `HTTP ${res.status}: ${res.statusText}`)
+    let errorMessage
+    let validationErrors = null
+    try {
+      // Try to parse as JSON first
+      const errorData = await res.json()
+      
+      // Handle ErrorResponse structure from backend
+      if (errorData.validationErrors) {
+        validationErrors = errorData.validationErrors
+        const errorList = Object.entries(errorData.validationErrors)
+          .map(([field, msg]) => `${field}: ${msg}`)
+          .join(', ')
+        errorMessage = `${errorData.message || 'Validation failed'}: ${errorList}`
+      } else {
+        errorMessage = errorData.message || errorData.error || JSON.stringify(errorData)
+      }
+    } catch {
+      // If not JSON, get as text
+      errorMessage = await res.text()
+    }
+    
+    console.error('API Error:', {
+      status: res.status,
+      statusText: res.statusText,
+      message: errorMessage,
+      validationErrors,
+      url
+    })
+    
+    const error = new Error(errorMessage || `HTTP ${res.status}: ${res.statusText}`)
+    error.validationErrors = validationErrors
+    throw error
   }
-  return res.json()
+  
+  const data = await res.json()
+  console.log('API Response:', data)
+  return data
 }
