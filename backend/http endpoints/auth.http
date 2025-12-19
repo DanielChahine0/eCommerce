@@ -1,5 +1,8 @@
-### Register a new user
-POST http://localhost:8080/api/auth/register
+@baseUrl = http://localhost:8080
+@token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJqb2huQGV4YWFzZmFzZmFzbXBmZmZsZS5jb20iLCJpYXQiOjE3NjYxMDAzNTcsImV4cCI6MTc2NjE4Njc1N30.2r0VLFQ37E-xOdb-srzlD9D9-wQqVWCIEEDqzLOjsV-MDy2ZIUirQLgzGO5eLPV0tWRoEfM_2D3sxYaobYkqaQ
+
+### 1. Register a new user
+POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
 
 {
@@ -16,10 +19,47 @@ Content-Type: application/json
   }
 }
 
+### 1. Register a new user
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "johnfdfasfsfdoe",
+  "email": "john@exaasfasfasmpfffle.com",
+  "password": "password123",
+  "roleId": 1,
+  "phoneNumber": "123-456-7890",
+  "address": {
+    "zip": "12345",
+    "country": "USA",
+    "street": "123 Main St",
+    "province": "NY"
+  }
+}
+
+
+### 2. Register admin user
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "email": "admin@example.com",
+  "password": "admin123",
+  "roleId": 2,
+  "phoneNumber": "987-654-3210",
+  "address": {
+    "zip": "54321",
+    "country": "USA",
+    "street": "456 Admin Ave",
+    "province": "CA"
+  }
+}
+
 ###
 
-### Login
-POST http://localhost:8080/api/auth/login
+### 3. Login (Copy the token from response and paste it in the @token variable above)
+POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
@@ -29,18 +69,17 @@ Content-Type: application/json
 
 ###
 
-### Validate Token (replace YOUR_TOKEN_HERE with actual token from login response)
-GET http://localhost:8080/api/auth/validate
-Authorization: Bearer YOUR_TOKEN_HERE
+### 4. Login as admin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
 
-###
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
 
-### Get all products (protected endpoint - requires authentication)
-GET http://localhost:8080/api/products
-Authorization: Bearer YOUR_TOKEN_HERE
 
-###
+### 5. Validate Token (Get current user info)
+GET {{baseUrl}}/api/auth/validate
+Authorization: Bearer {{token}}
 
-### Get current user info (using token)
-GET http://localhost:8080/api/auth/validate
-Authorization: Bearer YOUR_TOKEN_HERE
