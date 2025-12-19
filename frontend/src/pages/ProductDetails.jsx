@@ -15,8 +15,9 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [addingToCart, setAddingToCart] = useState(false);
-  
-  const product = useSelector((state) => state.products.currentProduct);
+  const {products} = useSelector((state) => state.products);
+
+  const product = products.find((p) => p.id === Number(id));
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -91,9 +92,9 @@ export default function ProductDetails() {
             {/* LEFT */}
             <div>
               <div className="h-64 w-full rounded-md bg-gray-200 overflow-hidden">
-                {product.imageUrl ? (
+                {product.image ? (
                   <img 
-                    src={product.imageUrl} 
+                    src={product.image} 
                     alt={product.name} 
                     className="w-full h-full object-cover"
                   />
@@ -120,11 +121,11 @@ export default function ProductDetails() {
                 <div className="space-y-1">
                   <div>
                     <span className="mr-2">Category:</span>
-                    <span className="capitalize">{product.category?.name || "N/A"}</span>
+                    <span className="capitalize">{product.categoryName || "N/A"}</span>
                   </div>
                   <div>
                     <span className="mr-2">Brand:</span>
-                    <span>{product.brand?.name || "N/A"}</span>
+                    <span>{product.brandName || "N/A"}</span>
                   </div>
                 </div>
 
@@ -135,7 +136,7 @@ export default function ProductDetails() {
                   </div>
                   <div>
                     <span className="mr-2">Quantity Available:</span>
-                    <span>{product.stockQuantity}</span>
+                    <span>{product.quantity}</span>
                   </div>
                 </div>
 
