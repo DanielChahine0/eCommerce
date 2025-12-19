@@ -2,17 +2,21 @@ import { api } from '../../api/api';
 import * as types from './orderActionTypes';
 
 // Fetch All Orders (User's Orders)
-export const fetchOrders = () => async (dispatch) => {
+export const fetchOrders = (auth) => async (dispatch) => {
   dispatch({ type: types.FETCH_ORDERS_REQUEST });
-  
+
   try {
-    const orders = await api('/api/orders');
+    const jwt = typeof auth === 'string' ? auth : (auth && auth.jwt) ? auth.jwt : null;
+    const options = jwt ? { headers: { Authorization: `Bearer ${jwt}` } } : undefined;
     
+
+    const orders = await api('/api/orders', options);
+
     dispatch({
       type: types.FETCH_ORDERS_SUCCESS,
       payload: orders,
     });
-    
+    console.log('Orders successfully fetched in action ---->', orders);
     return orders;
   } catch (error) {
     dispatch({

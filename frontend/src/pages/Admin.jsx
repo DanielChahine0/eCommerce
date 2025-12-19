@@ -1,14 +1,40 @@
 import { useState, useEffect, useMemo } from 'react';
 import { api } from '../api/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchOrders } from '../redux/orders/orderActions';
+import { fetchProducts } from '../redux/products/productActions';
+import { fetchUsers } from '../redux/users/userActions';
+import { Button } from '@/components/ui/button';
+
+
+
+
+
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 
 export default function Admin() {
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState('sales');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  // Requirement: View details for each order/user
-  const [selectedItem, setSelectedItem] = useState(null);
+  // Orders from Redux Store
+  const {orders} = useSelector((state) => state.orders);
+  const {products} = useSelector((state) => state.products);
+  const {users} = useSelector((state) => state.users);
 
+  //View Details for each order/user
+  const [selectedItem, setSelectedItem] = useState(null);
   // Requirement: Filter by customer, product, or date
   const [filters, setFilters] = useState({ query: '', date: '' });
 
@@ -47,6 +73,16 @@ export default function Admin() {
     // Logic to add or reduce inventory via API
     await api(`/api/products/${id}/quantity?quantity=${newQty}`, { method: 'PATCH' });
   };
+  
+
+  useEffect(() => {
+    dispatch(fetchOrders({jwt: localStorage.getItem('authToken')}));
+    dispatch(fetchProducts({jwt: localStorage.getItem('authToken')}));
+    dispatch(fetchUsers({jwt: localStorage.getItem('authToken')}));
+  }, []);
+
+  // console.log("Orders in Admin Page ---->", orders);
+
 
   return (
     <div className="bg-slate-50 min-h-screen p-4 md:p-8">
@@ -58,13 +94,87 @@ export default function Admin() {
           </div>
         </header>
 
-        <div className="flex space-x-1 bg-slate-200 p-1 rounded-xl mb-8 w-fit">
-          {['sales', 'inventory', 'users'].map((tab) => (
+
+        <div className='flex flex-row justify-between'>
+
+              <div className="flex space-x-1 bg-slate-200 p-1 rounded-xl mb-4 w-fit">
+                 {['sales', 'inventory', 'users'].map((tab) => (
             <button key={tab} onClick={() => setActiveTab(tab)}
               className={`px-6 py-2 rounded-lg font-medium capitalize transition-all ${activeTab === tab ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>
               {tab}
             </button>
-          ))}
+          ))}         
+        </div>
+            {/* If the active tab is inventory, show the Add Item button*/}
+           {activeTab === 'inventory' && 
+           
+           <Dialog>
+                  <form>
+                    <DialogTrigger asChild>
+                      <Button variant="outline">Add Item</Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Add Item</DialogTitle>
+                        <DialogDescription>
+                          To add new product to inventory, fill out the form below
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4">
+                        <div className="grid gap-3">
+                          <Label htmlFor="name-1">Name</Label>
+                          <Input id="name-1" name="name" defaultValue="" />
+                        </div>
+                        <div className="grid gap-3">
+                          <Label htmlFor="quantity-1">Quantity</Label>
+                          <Input id="quantity-1" name="quantity" defaultValue="" />
+                        </div>
+                      </div>
+                       <div className="grid gap-4">
+                        <div className="grid gap-3">
+                          <Label htmlFor="description-1">Description</Label>
+                          <Input id="description-1" name="name" defaultValue="" />
+                        </div>
+                        <div className="grid gap-3">
+                          <Label htmlFor="brandName-1">brandName</Label>
+                          <Input id="brandName-1" name="brandName" defaultValue="" />
+                        </div>
+
+                        <div className="grid gap-3">
+                          <Label htmlFor="brandId-1">brandId</Label>
+                          <Input id="brandId-1" name="brandId" defaultValue="" />
+                        </div>
+                        <div className="grid gap-3">
+                          <Label htmlFor="categoryName-1">categoryName</Label>
+                          <Input id="categoryName-1" name="categoryName" defaultValue="" />
+                        </div>
+
+                        <div className="grid gap-3">
+                          <Label htmlFor="categoryId-1">categoryId</Label>
+                          <Input id="categoryId-1" name="categoryId" defaultValue="" />
+                        </div>
+
+
+
+
+
+                      </div>
+                      
+
+
+
+
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="outline">Cancel</Button>
+                        </DialogClose>
+                        <Button type="submit">Save changes</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </form>
+                </Dialog>
+            }
+           
         </div>
 
         {/* Requirement: Filters for Sales */}
@@ -77,10 +187,12 @@ export default function Admin() {
           </div>
         )}
 
+
+
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          {activeTab === 'sales' && <SalesTable orders={filteredSales} onViewDetails={setSelectedItem} />}
-          {activeTab === 'inventory' && <InventoryTable products={data} onUpdate={handleUpdateStock} />}
-          {activeTab === 'users' && <UsersTable users={data} onManage={setSelectedItem} />}
+          {activeTab === 'sales' && <SalesTable orders={orders} onViewDetails={setSelectedItem} />}
+          {activeTab === 'inventory' && <InventoryTable products={products} onUpdate={handleUpdateStock} />}
+          {activeTab === 'users' && <UsersTable users={users} onManage={setSelectedItem} />}
         </div>
       </div>
 
@@ -217,7 +329,7 @@ function UsersTable({ users, onManage }) {
         {users.map(u => (
           <tr key={u.id} className="border-b">
             <td className="p-4">{u.email}</td>
-            <td className="p-4 text-sm text-slate-500">{u.roleName}</td>
+            <td className="p-4 text-sm text-slate-500">{u.role.name}</td>
             <td className="p-4 text-right">
               <button onClick={() => onManage(u)} className="text-indigo-600 font-medium">Edit Info</button>
             </td>

@@ -2,17 +2,21 @@ import { api } from '../../api/api';
 import * as types from './userActionTypes';
 
 // Fetch All Users (Admin)
-export const fetchUsers = () => async (dispatch) => {
+export const fetchUsers = (auth) => async (dispatch) => {
   dispatch({ type: types.FETCH_USERS_REQUEST });
-  
+
   try {
-    const users = await api('/api/users');
-    
+    // Accept either a raw jwt string or an object like { jwt }
+    const jwt = typeof auth === 'string' ? auth : (auth && auth.jwt) ? auth.jwt : null;
+    const options = jwt ? { headers: { Authorization: `Bearer ${jwt}` } } : undefined;
+
+    const users = await api('/api/users', options);
+
     dispatch({
       type: types.FETCH_USERS_SUCCESS,
       payload: users,
     });
-    
+    console.log('Users successfully fetched in action ---->', users);
     return users;
   } catch (error) {
     dispatch({
