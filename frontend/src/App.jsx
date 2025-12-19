@@ -11,11 +11,15 @@ import { AuthProvider } from './context/AuthContext'
 import Profile from './pages/Profile.jsx'
 import Orders from './pages/Orders.jsx'
 import SearchProduct from './pages/SearchProduct.jsx'
+import { useReduxInitializer } from './redux/reduxInitializer'
 
 
 import Footer from './components/Footer'
 
 export default function App() {
+  // Initialize Redux state from localStorage (auth token, etc.)
+  useReduxInitializer();
+
   return (
     <AuthProvider>
       <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
