@@ -126,7 +126,6 @@ export default function Catalog() {
                   <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
                   <div className="mt-auto flex items-center justify-between">
                     <span className="text-xl font-bold text-slate-900">${p.price}</span>
-                    <span className="text-sm text-indigo-600 font-medium">View Details →</span>
                   </div>
                 </div>
               </article>
