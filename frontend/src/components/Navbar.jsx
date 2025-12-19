@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchBasket } from '../redux/basket/basketActions'
 import { ShoppingCart, User, Heart, Search} from 'lucide-react'
 import { Button } from './ui/button'
 import { Input } from "@/components/ui/input"
@@ -24,18 +26,18 @@ import {
 export default function Navbar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth()
+  const dispatch = useDispatch()
+  const basketItems = useSelector((state) => state.basket.items)
   const [isOpen, setIsOpen] = useState(false)
   const location = useLocation()
-  const [cartCount, setCartCount] = useState(0)
-  const [cart, setCart] = useState([])
 
   useEffect(() => {
-    const shoppingCart = localStorage.getItem('shopping_cart')
-    if (shoppingCart) {
-      setCart(JSON.parse(shoppingCart))
-      setCartCount(JSON.parse(shoppingCart).length)
+    if (user) {
+      dispatch(fetchBasket(user.id)).catch(err => console.error("Failed to load basket:", err))
     }
-  }, [])
+  }, [user, dispatch])
+
+  const cartCount = basketItems.length
 
   const isActive = (path) => location.pathname === path
 
@@ -66,13 +68,14 @@ export default function Navbar() {
             <div className="flex items-center gap-5">
               <Link to="/cart" className="relative group p-2">
                 <ShoppingCart className="w-5 h-5 text-slate-600 group-hover:text-indigo-600 transition-colors" />
-                <span className="absolute top-0 right-0 h-4 w-4 bg-indigo-600 text-[10px] font-bold text-white rounded-full flex items-center justify-center">
-                  {/*  can eventually use /user/{userId}/count or get cart item count from session storage*/}
-                  {cartCount}
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute top-0 right-0 h-4 w-4 bg-indigo-600 text-[10px] font-bold text-white rounded-full flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
              {/* if user is logged in show user navbar, if user is not logged in use guest navbar*/}
-              {true ? (
+              {user ? (
                 <div className="flex items-center gap-3">
                   {/* Access liked items*/}
                   <div className="flex items-center gap-3">
@@ -97,17 +100,21 @@ export default function Navbar() {
                             </DropdownMenuItem>
                           </DropdownMenuGroup>
                           <DropdownMenuSeparator />
-                          {/*Need to implent logout logic */}
-                          <DropdownMenuItem onClick={() => navigate("/login")}>
+                          <DropdownMenuItem onClick={() => {
+                            logout()
+                            navigate("/")
+                          }}>
                             Log out
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
 
-                    {/* Handle logout function, need to clear cart, and erase JWT */}
-                       <Button onClick={() => navigate("/login")} variant="outline" className="">
-                          Log out
-                      </Button>
+                    <Button onClick={() => {
+                      logout()
+                      navigate("/")
+                    }} variant="outline" className="">
+                      Log out
+                    </Button>
                   </div>
                 </div>
               ) : (

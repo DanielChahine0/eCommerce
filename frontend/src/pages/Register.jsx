@@ -10,9 +10,7 @@ const [form, setForm] = useState({
   password: '',
   roleId: 1, // REQUIRED — backend will reject without this
   phoneNumber: '',
-  creditCard: '',
   address: {
-    id: null,
     zip: '',
     country: '',
     street: '',
@@ -25,24 +23,10 @@ const [form, setForm] = useState({
 
   async function submit() {
     try {
+      setError('')
       const res = await api('/api/auth/register', {
         method: 'POST',
-        body: JSON.stringify({
-  "username": "johndoe",
-  "email": "john@example.com",
-  "password": "password123",
-  "roleId": 1,
-  "phoneNumber": "123-456-7890",
-  "creditCard": "1234-5678-9012-3456",
-  "address": {
-    "zip": "12345",
-    "country": "USA",
-    "street": "123 Main St",
-    "province": "NY"
-  }
-})
-        // body: JSON.stringify(form)
-        
+        body: JSON.stringify(form)
       })
       login(res)
       nav('/')
@@ -94,11 +78,11 @@ const [form, setForm] = useState({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700">Credit Card</label>
+              <label className="block text-sm font-medium text-slate-700">Phone Number</label>
               <input
                 type="text"
                 className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border"
-                onChange={e => setForm({ ...form, creditCard: e.target.value })}
+                onChange={e => setForm({ ...form, phoneNumber: e.target.value })}
               />
             </div>
             <div>

@@ -2,11 +2,11 @@ import { api } from '../../api/api';
 import * as types from './basketActionTypes';
 
 // Fetch Basket
-export const fetchBasket = () => async (dispatch) => {
+export const fetchBasket = (userId) => async (dispatch) => {
   dispatch({ type: types.FETCH_BASKET_REQUEST });
   
   try {
-    const basket = await api('/api/basket');
+    const basket = await api(`/api/basket/user/${userId}`);
     
     dispatch({
       type: types.FETCH_BASKET_SUCCESS,
@@ -24,13 +24,13 @@ export const fetchBasket = () => async (dispatch) => {
 };
 
 // Add Item to Basket
-export const addToBasket = (productId, quantity = 1) => async (dispatch) => {
+export const addToBasket = (userId, productId, quantity = 1) => async (dispatch) => {
   dispatch({ type: types.ADD_TO_BASKET_REQUEST });
   
   try {
     const basketItem = await api('/api/basket', {
       method: 'POST',
-      body: JSON.stringify({ productId, quantity }),
+      body: JSON.stringify({ userId, productId, quantity }),
     });
     
     dispatch({
@@ -53,9 +53,8 @@ export const updateBasketItem = (basketItemId, quantity) => async (dispatch) => 
   dispatch({ type: types.UPDATE_BASKET_ITEM_REQUEST });
   
   try {
-    const basketItem = await api(`/api/basket/${basketItemId}`, {
-      method: 'PUT',
-      body: JSON.stringify({ quantity }),
+    const basketItem = await api(`/api/basket/${basketItemId}?quantity=${quantity}`, {
+      method: 'PATCH',
     });
     
     dispatch({
@@ -98,11 +97,11 @@ export const removeFromBasket = (basketItemId) => async (dispatch) => {
 };
 
 // Clear Entire Basket
-export const clearBasket = () => async (dispatch) => {
+export const clearBasket = (userId) => async (dispatch) => {
   dispatch({ type: types.CLEAR_BASKET_REQUEST });
   
   try {
-    await api('/api/basket/clear', {
+    await api(`/api/basket/user/${userId}`, {
       method: 'DELETE',
     });
     

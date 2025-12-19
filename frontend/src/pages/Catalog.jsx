@@ -1,22 +1,18 @@
-import { useEffect, useState,    } from 'react'
-import { api } from '../api/api'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchProducts } from '../redux/products/productActions'
 import { Link, useNavigate } from 'react-router-dom'
-// Using native clickable card elements for full-size product cards
 import {
   Card,
-  CardAction,
   CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 
 export default function Catalog() {
-  const [products, setProducts] = useState([])
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const products = useSelector((state) => state.products.products);
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([])
   
   // State for search, filter, and sort
   const [search, setSearch] = useState('')
@@ -24,23 +20,21 @@ export default function Catalog() {
   const [sortConfig, setSortConfig] = useState('newest')
 
   useEffect(() => {
-    // In production, use api('/api/products')
-    // Simulating API fetch with mock data that includes category/brand/inventory
-    const data = [
-      { id: "101", name: "Lunar Gray Headphones", price: 199, category: "Electronics", brand: "Sony", quantity: 5, image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
-      { id: "102", name: "Slate Desk Organizer", price: 45, category: "Office", brand: "Nomad", quantity: 12, image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800" },
-      { id: "103", name: "Obsidian Smart Watch", price: 349, category: "Electronics", brand: "Apple", quantity: 3, image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
-      { id: "104", name: "Ceramic Drip Kettle", price: 85, category: "Kitchen", brand: "Fellow", quantity: 0, image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800" }
-    ];
-    setProducts(data);
-    setLoading(false);
-  }, []);
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        await dispatch(fetchProducts());
+      } catch (err) {
+        console.error("Failed to load products:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, [dispatch]);
 
-
-  
   useEffect(() => {
-    // In production, use api('/api/products')
-    // Simulating API fetch with mock data that includes category/brand/inventory
+    // Mock categories - in production, fetch from API
     const categories = [
       { id: "101", name: "Jewelry", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
       { id: "102", name: "Books", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
@@ -49,7 +43,6 @@ export default function Catalog() {
       { id: "105", name: "Sports", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
     ];
     setCategories(categories);
-    setLoading(false);
   }, []);
 
 
@@ -112,17 +105,20 @@ export default function Catalog() {
                 role="button"
                 tabIndex={0}
                 onClick={() => navigate(`/product/${p.id}`)}
-                // onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`) }}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
               >
                 <div className="relative">
-                  <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
-                  {p.quantity === 0 && (
+                  <img 
+                    src={p.imageUrl || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
+                    alt={p.name} 
+                    className="w-full h-full object-cover transition-transform duration-500" 
+                  />
+                  {p.stockQuantity === 0 && (
                     <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
                   )}
                 </div>
                 <div className="p-5 flex flex-col flex-grow">
-                  <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand}</span>
+                  <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand?.name || "N/A"}</span>
                   <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
                   <div className="mt-auto flex items-center justify-between">
                     <span className="text-xl font-bold text-slate-900">${p.price}</span>
@@ -168,17 +164,20 @@ export default function Catalog() {
                 role="button"
                 tabIndex={0}
                 onClick={() => navigate(`/product/${p.id}`)}
-                // onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`) }}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
               >
                 <div className="relative">
-                  <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
-                  {p.quantity === 0 && (
+                  <img 
+                    src={p.imageUrl || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
+                    alt={p.name} 
+                    className="w-full h-full object-cover transition-transform duration-500" 
+                  />
+                  {p.stockQuantity === 0 && (
                     <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
                   )}
                 </div>
                 <div className="p-5 flex flex-col flex-grow">
-                  <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand}</span>
+                  <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand?.name || "N/A"}</span>
                   <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
                   <div className="mt-auto flex items-center justify-between">
                     <span className="text-xl font-bold text-slate-900">${p.price}</span>
