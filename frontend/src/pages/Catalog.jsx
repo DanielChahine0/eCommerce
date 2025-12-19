@@ -168,7 +168,7 @@ export default function Catalog() {
               >
                 <div className="relative">
                   <img 
-                    src={p.imageUrl || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
+                    src={p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
                     alt={p.name} 
                     className="w-full h-full object-cover transition-transform duration-500" 
                   />

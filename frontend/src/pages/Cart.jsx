@@ -107,7 +107,7 @@ export default function Cart() {
               <li key={i.id} className="p-6 flex items-center">
                 <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-slate-200">
                   <img 
-                    src={i.product?.imageUrl || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop"} 
+                    src={i.product?.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop"} 
                     alt={i.product?.name} 
                     className="h-full w-full object-cover" 
                   />

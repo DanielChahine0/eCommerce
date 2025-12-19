@@ -1,14 +1,19 @@
 package com.example.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Email;
+import java.util.List;
 
 public class CreateOrderRequest {
     
-    @NotNull(message = "User ID is required")
+    // For authenticated users
     private Long userId;
-    
-    @NotNull(message = "Address ID is required")
     private Long addressId;
+    
+    // For guest checkout
+    @Email(message = "Valid email is required for guest checkout")
+    private String guestEmail;
+    private AddressDTO guestAddress;
+    private List<OrderItemDTO> items;
     
     // Constructors
     public CreateOrderRequest() {}
@@ -33,5 +38,33 @@ public class CreateOrderRequest {
     
     public void setAddressId(Long addressId) {
         this.addressId = addressId;
+    }
+    
+    public String getGuestEmail() {
+        return guestEmail;
+    }
+    
+    public void setGuestEmail(String guestEmail) {
+        this.guestEmail = guestEmail;
+    }
+    
+    public AddressDTO getGuestAddress() {
+        return guestAddress;
+    }
+    
+    public void setGuestAddress(AddressDTO guestAddress) {
+        this.guestAddress = guestAddress;
+    }
+    
+    public List<OrderItemDTO> getItems() {
+        return items;
+    }
+    
+    public void setItems(List<OrderItemDTO> items) {
+        this.items = items;
+    }
+    
+    public boolean isGuestOrder() {
+        return userId == null && guestEmail != null;
     }
 }

@@ -28,12 +28,28 @@ const basketReducer = (state = initialState, action) => {
       };
 
     case types.ADD_TO_BASKET_SUCCESS:
-      return {
-        ...state,
-        items: [...state.items, action.payload],
-        loading: false,
-        error: null,
-      };
+      // Check if item already exists in basket
+      const existingItemIndex = state.items.findIndex(item => item.id === action.payload.id);
+      
+      if (existingItemIndex >= 0) {
+        // Update existing item
+        const updatedItems = [...state.items];
+        updatedItems[existingItemIndex] = action.payload;
+        return {
+          ...state,
+          items: updatedItems,
+          loading: false,
+          error: null,
+        };
+      } else {
+        // Add new item
+        return {
+          ...state,
+          items: [...state.items, action.payload],
+          loading: false,
+          error: null,
+        };
+      }
 
     case types.UPDATE_BASKET_ITEM_SUCCESS:
       return {

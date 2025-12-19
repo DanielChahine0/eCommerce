@@ -91,9 +91,9 @@ export default function ProductDetails() {
             {/* LEFT */}
             <div>
               <div className="h-64 w-full rounded-md bg-gray-200 overflow-hidden">
-                {product.imageUrl ? (
+                {product.image ? (
                   <img 
-                    src={product.imageUrl} 
+                    src={product.image} 
                     alt={product.name} 
                     className="w-full h-full object-cover"
                   />

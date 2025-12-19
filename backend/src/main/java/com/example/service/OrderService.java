@@ -3,6 +3,7 @@ package com.example.service;
 import com.example.dto.AddressDTO;
 import com.example.dto.CreateOrderRequest;
 import com.example.dto.OrderDTO;
+import com.example.dto.OrderItemDTO;
 import com.example.exception.InvalidOperationException;
 import com.example.exception.ResourceNotFoundException;
 import com.example.exception.InsufficientStockException;
@@ -35,6 +36,14 @@ public class OrderService {
     private ProductRepository productRepository;
     
     public OrderDTO createOrder(CreateOrderRequest request) {
+        if (request.isGuestOrder()) {
+            return createGuestOrder(request);
+        } else {
+            return createAuthenticatedOrder(request);
+        }
+    }
+    
+    private OrderDTO createAuthenticatedOrder(CreateOrderRequest request) {
         User user = userRepository.findById(request.getUserId())
             .orElseThrow(() -> new ResourceNotFoundException(
                 "User not found with id: '" + request.getUserId() + "'"));
@@ -64,8 +73,8 @@ public class OrderService {
                     ", Required: " + basketItem.getQuantity());
             }
             
-            // For now, using a simple calculation (can be enhanced with price)
-            total += basketItem.getQuantity() * 10.0; // Placeholder price
+            // Calculate total using actual product price
+            total += basketItem.getQuantity() * product.getPrice();
         }
         
         // Create order
@@ -82,6 +91,63 @@ public class OrderService {
         
         // Clear user's basket after successful order
         basketRepository.deleteByUserId(request.getUserId());
+        
+        return convertToDTO(savedOrder);
+    }
+    
+    private OrderDTO createGuestOrder(CreateOrderRequest request) {
+        if (request.getGuestEmail() == null || request.getGuestEmail().trim().isEmpty()) {
+            throw new InvalidOperationException("Guest email is required");
+        }
+        
+        if (request.getGuestAddress() == null) {
+            throw new InvalidOperationException("Guest shipping address is required");
+        }
+        
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new InvalidOperationException("Order items are required for guest checkout");
+        }
+        
+        // Create address for guest order
+        AddressDTO guestAddressDTO = request.getGuestAddress();
+        Address guestAddress = new Address(
+            guestAddressDTO.getZip(),
+            guestAddressDTO.getCountry(),
+            guestAddressDTO.getStreet(),
+            guestAddressDTO.getProvince()
+        );
+        Address savedAddress = addressRepository.save(guestAddress);
+        
+        // Validate stock and calculate total
+        double total = 0.0;
+        for (OrderItemDTO item : request.getItems()) {
+            Product product = productRepository.findById(item.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                    "Product not found with id: '" + item.getProductId() + "'"));
+            
+            // Check stock availability
+            if (product.getQuantity() < item.getQuantity()) {
+                throw new InsufficientStockException(
+                    "Insufficient stock for product '" + product.getName() + 
+                    "'. Available: " + product.getQuantity() + 
+                    ", Required: " + item.getQuantity());
+            }
+            
+            // Calculate total using actual product price
+            total += item.getQuantity() * product.getPrice();
+        }
+        
+        // Create order without user (guest order)
+        Order order = new Order(null, savedAddress, total);
+        
+        // Reduce inventory
+        for (OrderItemDTO item : request.getItems()) {
+            Product product = productRepository.findById(item.getProductId()).get();
+            product.setQuantity(product.getQuantity() - item.getQuantity());
+            productRepository.save(product);
+        }
+        
+        Order savedOrder = orderRepository.save(order);
         
         return convertToDTO(savedOrder);
     }
@@ -167,10 +233,14 @@ public class OrderService {
             order.getAddress().getProvince()
         );
         
+        // Handle guest orders (user may be null)
+        Long userId = order.getUser() != null ? order.getUser().getId() : null;
+        String username = order.getUser() != null ? order.getUser().getUsername() : "Guest";
+        
         return new OrderDTO(
             order.getId(),
-            order.getUser().getId(),
-            order.getUser().getUsername(),
+            userId,
+            username,
             addressDTO,
             order.getStatus(),
             order.getTotal(),
