@@ -134,7 +134,7 @@ export default function Catalog() {
 
 
 
-          <p className='font-bold'>Search by Category</p>  
+          <p className='font-bold mt-6'>Search by Category</p>  
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
             {categories.map(p => (
               <article
@@ -160,7 +160,7 @@ export default function Catalog() {
 
 
 
-          <p className='font-bold'>Trending Items </p>  
+          <p className='font-bold mt-6'>Trending Items </p>  
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
             {products.map(p => (
               <article
