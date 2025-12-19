@@ -17,14 +17,14 @@ import { useReduxInitializer } from './redux/reduxInitializer'
 import Footer from './components/Footer'
 
 export default function App() {
-  // Initialize Redux state from localStorage (auth token, etc.)
   useReduxInitializer();
 
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col">
         <Navbar />
-        <main className="pt-20 px-4 sm:px-6 lg:px-8 mx-auto pb-12">
+
+        <main className="flex-grow pt-20 px-4 sm:px-6 lg:px-8 mx-auto pb-12 w-full">
           <Routes>
             <Route path="/" element={<Catalog />} />
             <Route path="/search/:name" element={<SearchProduct />} />
@@ -36,11 +36,11 @@ export default function App() {
             <Route path="/admin" element={<Admin />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/orders" element={<Orders />} />
-
           </Routes>
         </main>
+
         <Footer />
       </div>
     </AuthProvider>
-  )
+  );
 }
