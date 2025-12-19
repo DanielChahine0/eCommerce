@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchBasket, updateBasketItem, removeFromBasket } from '../redux/basket/basketActions'
+import { 
+  fetchBasket, 
+  updateBasketItem, 
+  removeFromBasket,
+  loadLocalBasket,
+  updateLocalBasketItem,
+  removeFromLocalBasket 
+} from '../redux/basket/basketActions'
 import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
 
@@ -13,14 +20,15 @@ export default function Cart() {
 
   useEffect(() => {
     const loadBasket = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      
       try {
         setLoading(true);
-        await dispatch(fetchBasket(user.id));
+        if (user) {
+          // Load server basket for authenticated users
+          await dispatch(fetchBasket(user.id));
+        } else {
+          // Load local basket for guest users
+          dispatch(loadLocalBasket());
+        }
       } catch (err) {
         setError("Failed to load cart");
         console.error(err);
@@ -34,7 +42,13 @@ export default function Cart() {
   const updateQuantity = async (basketItemId, currentQuantity, delta) => {
     const newQty = Math.max(1, currentQuantity + delta);
     try {
-      await dispatch(updateBasketItem(basketItemId, newQty));
+      if (user) {
+        // Update server basket
+        await dispatch(updateBasketItem(basketItemId, newQty));
+      } else {
+        // Update local basket
+        dispatch(updateLocalBasketItem(basketItemId, newQty));
+      }
     } catch (err) {
       setError("Failed to update quantity");
     }
@@ -42,24 +56,19 @@ export default function Cart() {
 
   const removeItem = async (basketItemId) => {
     try {
-      await dispatch(removeFromBasket(basketItemId));
+      if (user) {
+        // Remove from server basket
+        await dispatch(removeFromBasket(basketItemId));
+      } else {
+        // Remove from local basket
+        dispatch(removeFromLocalBasket(basketItemId));
+      }
     } catch (err) {
       setError("Failed to remove item");
     }
   };
 
   const total = basketItems.reduce((s, i) => s + (i.product?.price || 0) * i.quantity, 0);
-
-  if (!user) {
-    return (
-      <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-slate-100">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Please login to view your cart</h2>
-        <Link to="/login" className="inline-block bg-indigo-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-indigo-700">
-          Login
-        </Link>
-      </div>
-    );
-  }
 
   if (loading) return <div className="animate-pulse h-64 bg-slate-100 rounded-xl" />
 
@@ -142,9 +151,15 @@ export default function Cart() {
               <dt className="text-base font-bold text-slate-900">Order Total</dt>
               <dd className="text-xl font-bold text-indigo-600">${total.toLocaleString()}</dd>
             </div>
-            <Link to="/checkout" className="mt-6 w-full flex justify-center items-center px-6 py-4 rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 font-medium transition-all shadow-lg shadow-indigo-100">
-              Proceed to Checkout
-            </Link>
+            {user ? (
+              <Link to="/checkout" className="mt-6 w-full flex justify-center items-center px-6 py-4 rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 font-medium transition-all shadow-lg shadow-indigo-100">
+                Proceed to Checkout
+              </Link>
+            ) : (
+              <Link to="/login" className="mt-6 w-full flex justify-center items-center px-6 py-4 rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 font-medium transition-all shadow-lg shadow-indigo-100">
+                Login to Checkout
+              </Link>
+            )}
           </div>
         </div>
       </div>

@@ -78,6 +78,26 @@ const basketReducer = (state = initialState, action) => {
         error: null,
       };
 
+    // Local basket actions
+    case types.LOAD_LOCAL_BASKET:
+    case types.ADD_TO_LOCAL_BASKET:
+    case types.UPDATE_LOCAL_BASKET_ITEM:
+    case types.REMOVE_FROM_LOCAL_BASKET:
+      return {
+        ...state,
+        items: action.payload,
+        loading: false,
+        error: null,
+      };
+
+    case types.CLEAR_LOCAL_BASKET:
+      return {
+        ...state,
+        items: [],
+        loading: false,
+        error: null,
+      };
+
     default:
       return state;
   }

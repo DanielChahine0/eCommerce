@@ -1,57 +1,47 @@
-package com.example.model;
+package com.example.dto;
 
-import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-@Entity
-@Table(name = "users")
-public class User {
+public class UpdateUserRequest {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true)
+    @NotBlank(message = "Username is required")
     private String username;
 
-    @Column(nullable = false, unique = true)
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email must be valid")
     private String email;
 
-    @Column(nullable = false)
+    // Password is optional for updates
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
+    @NotNull(message = "Role ID is required")
+    private Long roleId;
 
-    @Column
     private String phoneNumber;
 
-    @OneToOne
-    @JoinColumn(name = "address_id", referencedColumnName = "id")
-    private Address address;
+    @Valid
+    private AddressDTO address;
 
     // Constructors
-    public User() {
+    public UpdateUserRequest() {
     }
 
-    public User(String username, String email, String password, Role role, String phoneNumber, Address address) {
+    public UpdateUserRequest(String username, String email, String password, Long roleId, String phoneNumber,
+            AddressDTO address) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.role = role;
+        this.roleId = roleId;
         this.phoneNumber = phoneNumber;
         this.address = address;
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -76,12 +66,12 @@ public class User {
         this.password = password;
     }
 
-    public Role getRole() {
-        return role;
+    public Long getRoleId() {
+        return roleId;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 
     public String getPhoneNumber() {
@@ -92,11 +82,11 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public Address getAddress() {
+    public AddressDTO getAddress() {
         return address;
     }
 
-    public void setAddress(Address address) {
+    public void setAddress(AddressDTO address) {
         this.address = address;
     }
 }

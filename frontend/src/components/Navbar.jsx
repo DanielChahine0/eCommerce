@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchBasket } from '../redux/basket/basketActions'
+import { fetchBasket, loadLocalBasket } from '../redux/basket/basketActions'
 import { ShoppingCart, User, Heart, Search} from 'lucide-react'
 import { Button } from './ui/button'
 import { Input } from "@/components/ui/input"
@@ -34,6 +34,9 @@ export default function Navbar() {
   useEffect(() => {
     if (user) {
       dispatch(fetchBasket(user.id)).catch(err => console.error("Failed to load basket:", err))
+    } else {
+      // Load local basket for guest users
+      dispatch(loadLocalBasket())
     }
   }, [user, dispatch])
 

@@ -1,12 +1,15 @@
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { api } from '../api/api'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate, Link } from 'react-router-dom'
+import { mergeLocalBasketWithServer } from '../redux/basket/basketActions'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const { login } = useAuth()
+  const dispatch = useDispatch()
   const nav = useNavigate()
   const [error, setError] = useState('')
 
@@ -18,6 +21,15 @@ export default function Login() {
         body: JSON.stringify({ email, password })
       })
       login(res)
+      
+      // Merge local basket with server basket after login
+      try {
+        await dispatch(mergeLocalBasketWithServer(res.user.id))
+      } catch (mergeError) {
+        console.error('Failed to merge cart:', mergeError)
+        // Continue with login even if merge fails
+      }
+      
       nav('/')
     } catch (e) {
       setError('Invalid credentials')

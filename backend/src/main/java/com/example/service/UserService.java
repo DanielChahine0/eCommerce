@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.dto.AddressDTO;
 import com.example.dto.CreateUserRequest;
+import com.example.dto.UpdateUserRequest;
 import com.example.dto.RoleDTO;
 import com.example.dto.UserDTO;
 import com.example.exception.DuplicateResourceException;
@@ -103,7 +104,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserDTO updateUser(Long id, CreateUserRequest request) {
+    public UserDTO updateUser(Long id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with id: '" + id + "'"));
@@ -126,8 +127,8 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
 
-        // Update password if provided
-        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+        // Update password only if provided (not null and not empty)
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductDetails } from "../redux/products/productActions";
-import { addToBasket } from "../redux/basket/basketActions";
+import { addToBasket, addToLocalBasket } from "../redux/basket/basketActions";
 import { useAuth } from "../context/AuthContext";
 
 export default function ProductDetails() {
@@ -33,14 +33,15 @@ export default function ProductDetails() {
   }, [id, dispatch]);
 
   const handleAddToCart = async () => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-    
     try {
       setAddingToCart(true);
-      await dispatch(addToBasket(user.id, product.id, quantity));
+      if (user) {
+        // Add to server basket for authenticated users
+        await dispatch(addToBasket(user.id, product.id, quantity));
+      } else {
+        // Add to local basket for guest users
+        dispatch(addToLocalBasket(product, quantity));
+      }
       alert("Added to cart successfully!");
     } catch (err) {
       setError("Failed to add to cart");

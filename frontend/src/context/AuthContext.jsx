@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { api, setAuthToken } from '../api/api'
 
 
@@ -8,14 +8,34 @@ const AuthContext = createContext()
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(localStorage.getItem('authToken'))
+  const [loading, setLoading] = useState(true)
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('authToken')
+    setToken(null)
+    setUser(null)
+    setAuthToken(null)
+  }, [])
 
   useEffect(() => {
-    if (token) {
-      setAuthToken(token)
-      api('/api/auth/validate')
-        .then(setUser)
-        .catch(() => logout())
+    async function validateToken() {
+      if (token) {
+        setAuthToken(token)
+        try {
+          const userData = await api('/api/auth/validate')
+          setUser(userData)
+        } catch (error) {
+          // Token is invalid or expired, clear it
+          console.log('Token validation failed, clearing authentication')
+          localStorage.removeItem('authToken')
+          setToken(null)
+          setAuthToken(null)
+        }
+      }
+      setLoading(false)
     }
+
+    validateToken()
   }, [token])
 
   function login(data) {
@@ -24,16 +44,9 @@ export function AuthProvider({ children }) {
     setUser(data.user)
   }
 
-  function logout() {
-    localStorage.removeItem('authToken')
-    setToken(null)
-    setUser(null)
-    setAuthToken(null)
-  }
-
 
 return (
-<AuthContext.Provider value={{ user, token, login, logout }}>
+<AuthContext.Provider value={{ user, token, login, logout, loading }}>
 {children}
 </AuthContext.Provider>
 )

@@ -18,10 +18,10 @@ Authorization: Bearer {{token}}
   "name": "Laptop Pro 15",
   "description": "High-performance laptop with 16GB RAM and 512GB SSD",
   "price": 1299.99,
-  "stockQuantity": 50,
+  "quantity": 50,
   "brandId": 1,
   "categoryId": 1,
-  "imageUrl": "https://example.com/images/laptop-pro-15.jpg"
+  "image": "https://example.com/images/laptop-pro-15.jpg"
 }
 
 ### 4. Create another product
@@ -33,10 +33,10 @@ Authorization: Bearer {{token}}
   "name": "Wireless Mouse",
   "description": "Ergonomic wireless mouse with 2.4GHz connectivity",
   "price": 29.99,
-  "stockQuantity": 200,
+  "quantity": 200,
   "brandId": 2,
   "categoryId": 2,
-  "imageUrl": "https://example.com/images/wireless-mouse.jpg"
+  "image": "https://example.com/images/wireless-mouse.jpg"
 }
 
 ### 5. Get product by ID (replace {id} with actual product ID)
