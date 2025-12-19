@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { createOrder } from '../redux/orders/orderActions'
-import { clearBasket, clearLocalBasket } from '../redux/basket/basketActions'
+import { clearLocalBasket } from '../redux/basket/basketActions'
+import { CLEAR_BASKET_SUCCESS } from '../redux/basket/basketActionTypes'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
@@ -11,7 +12,6 @@ export default function Checkout() {
   const nav = useNavigate()
   const dispatch = useDispatch()
   const basketItems = useSelector((state) => state.basket.items)
-  const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   
@@ -38,9 +38,22 @@ export default function Checkout() {
   }, [user])
 
   async function submit() {
+    console.group('🛒 Starting Checkout Process');
+    console.log('User:', user ? `Authenticated (${user.username})` : 'Guest');
+    console.log('Basket Items:', basketItems);
+    console.groupEnd();
+    
     try {
       setLoading(true)
       setError("")
+      
+      // Validate basket has items
+      if (!basketItems || basketItems.length === 0) {
+        console.warn('⚠️ Checkout attempted with empty basket');
+        setError("Your basket is empty. Please add items before checkout.")
+        setLoading(false)
+        return
+      }
       
       if (user) {
         // Authenticated user checkout
@@ -59,12 +72,27 @@ export default function Checkout() {
         })
         
         // Create order with userId and addressId
+        // Backend will automatically get items from user's basket
         const orderData = {
           userId: user.id,
           addressId: updatedUser.address.id
         }
         
-        await dispatch(createOrder(orderData))
+        const order = await dispatch(createOrder(orderData))
+        
+        // After successful order, basket is cleared by backend
+        // Refresh basket to reflect the empty state
+        dispatch({ type: CLEAR_BASKET_SUCCESS })
+        
+        // Navigate to thank you page with order details
+        nav('/thank-you', { 
+          state: { 
+            orderDetails: { 
+              orderId: order?.id,
+              guestEmail: user.email 
+            } 
+          } 
+        })
       } else {
         // Guest checkout
         if (!guestEmail || !guestEmail.trim()) {
@@ -83,32 +111,42 @@ export default function Checkout() {
           }))
         }
         
-        await dispatch(createOrder(orderData))
+        const order = await dispatch(createOrder(orderData))
         
-        // Clear local basket for guest users
-        dispatch(clearLocalBasket())
+        // After successful order, clear basket
+        dispatch({ type: CLEAR_BASKET_SUCCESS })
+        
+        // Navigate to thank you page with order details
+        nav('/thank-you', { 
+          state: { 
+            orderDetails: { 
+              orderId: order?.id,
+              guestEmail: guestEmail 
+            } 
+          } 
+        })
       }
       
-      setSuccess(true)
-      setTimeout(() => nav(user ? '/orders' : '/'), 3000)
+      console.group('✅ Checkout Successful');
+      console.log('Navigating to thank you page');
+      console.groupEnd();
     } catch (err) {
-      setError(err.message || "Failed to create order. Please try again.")
-      console.error(err)
-    } finally {
+      console.group('❌ Checkout Failed');
+      console.error('Error Type:', err.constructor.name);
+      console.error('Error Message:', err.message);
+      console.error('Error Stack:', err.stack);
+      console.error('Full Error Object:', err);
+      console.error('---');
+      console.error('Troubleshooting Steps:');
+      console.error('1. Check if backend server is running on http://localhost:8080');
+      console.error('2. Check browser console for CORS errors');
+      console.error('3. Verify network tab for request details');
+      console.error('4. Check backend logs for errors');
+      console.groupEnd();
+      
+      setError(err.response?.data?.message || err.message || "Checkout failed. Please try again.")
       setLoading(false)
     }
-  }
-
-  if (success) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center">
-        <div className="h-24 w-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
-           <span className="text-4xl">🎉</span>
-        </div>
-        <h1 className="text-4xl font-bold text-slate-900 mb-2">Order Confirmed!</h1>
-        <p className="text-slate-600">Thank you for your purchase. Redirecting to your orders...</p>
-      </div>
-    )
   }
 
   return (

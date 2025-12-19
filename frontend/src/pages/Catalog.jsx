@@ -118,7 +118,7 @@ export default function Catalog() {
                   )}
                 </div>
                 <div className="p-5 flex flex-col flex-grow">
-                  <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand?.name || "N/A"}</span>
+                  <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p?.brandName || "N/A"}</span>
                   <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
                   <div className="mt-auto flex items-center justify-between">
                     <span className="text-xl font-bold text-slate-900">${p.price}</span>
