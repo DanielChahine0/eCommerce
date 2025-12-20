@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useId, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { fetchProducts, searchProducts } from '../redux/products/productActions';
+import { useNavigate, useParams } from "react-router-dom";
+import { searchProducts } from '../redux/products/productActions';
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const categories = ["Electronics", "Books", "Clothes", "Sports", "Home", "Toys"];
@@ -29,9 +29,15 @@ export default function SearchProduct() {
     [selectedBrands]
   );
 
-  // select searchResults from redux safely (avoid errors if slice not yet initialized)
-  const q = new URLSearchParams(location.search).get('name')?.trim();
-  console.log(q);
+  const { product_name } = useParams();
+  const q = useMemo(() => {
+    const raw = product_name ?? "";
+    try {
+      return decodeURIComponent(raw).trim();
+    } catch {
+      return raw.trim();
+    }
+  }, [product_name]);
 
   const searchResults = useSelector((state) => state.products?.searchResults ?? []);
   console.log("Retrieved searchResult ---->", searchResults)
@@ -216,9 +222,9 @@ export default function SearchProduct() {
                             <div className="text-xs font-semibold tracking-wide text-slate-900/80">
                               Search Results
                             </div>
-                            <div className="text-lg font-semibold text-slate-900">
-                              Harry Potter and the Seven Dwarves
-                            </div>
+            <div className="text-lg font-semibold text-slate-900">
+              {q || "Search"}
+            </div>
                             <div className="mt-1 text-xs text-slate-900/70">
                               Showing {cards.length} items
                             </div>
