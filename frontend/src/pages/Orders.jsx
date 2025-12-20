@@ -1,41 +1,36 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchOrders } from "../redux/orders/orderActions";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { api } from "../api/api";
 
 export default function Orders() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, token, loading: authLoading } = useAuth();
-  const orders = useSelector((state) => state.orders.orders);
+  const { user } = useAuth();
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (authLoading) {
-      return;
-    }
-
     if (!user) {
       navigate("/login");
       return;
     }
 
-    const loadOrders = async () => {
-      try {
-        setLoading(true);
-        setError("");
-        await dispatch(fetchOrders({ userId: user.id, jwt: token }));
-      } catch (err) {
-        setError("Failed to load orders");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadOrders();
-  }, [user, token, authLoading, dispatch, navigate]);
+    if (user?.id) {
+      setLoading(true);
+      Promise.all([
+        api(`/api/orders/user/${user.id}`)
+      ]).then(([orders]) => {
+        setOrders(orders);
+      }).catch((error) => {
+        console.error('Error fetching user data:', error);
+        setOrders([]);
+      }).finally(() => setLoading(false));
+    } else {
+      console.log("No user id");
+      setLoading(false);
+    }
+  }, [user, navigate]);
 
   if (loading) {
     return (
