@@ -183,14 +183,16 @@ const getCategoryName = (product) => {
 
   const handleAddProduct = async (event) => {
     event.preventDefault();
+    const brandId = toBrandId(productForm.brandId);
+    const categoryId = toCategoryId(productForm.categoryId);
     const payload = {
       name: productForm.name.trim(),
       quantity: Number(productForm.quantity),
       price: Number(productForm.price),
       description: productForm.description.trim(),
       image: productForm.image.trim(),
-      brandId: Number(toBrandId(productForm.brandId)),
-      categoryId: Number( toCategoryId(productForm.categoryId)),
+      brandId: Number(brandId),
+      categoryId: Number(categoryId),
     };
 
     if (
@@ -198,7 +200,9 @@ const getCategoryName = (product) => {
       !Number.isFinite(payload.quantity) ||
       !Number.isFinite(payload.price) ||
       !Number.isFinite(payload.brandId) ||
-      !Number.isFinite(payload.categoryId)
+      !Number.isFinite(payload.categoryId) ||
+      payload.brandId <= 0 ||
+      payload.categoryId <= 0
     ) {
       return;
     }
@@ -252,11 +256,11 @@ const getCategoryName = (product) => {
            {activeTab === 'inventory' && 
            
            <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-                  <form onSubmit={handleAddProduct}>
                     <DialogTrigger asChild>
-                      <Button variant="outline">Add Item</Button>
+                      <Button variant="outline" type="button">Add Item</Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
+                      <form onSubmit={handleAddProduct}>
                       <DialogHeader>
                         <DialogTitle>Add Item</DialogTitle>
                         <DialogDescription>
@@ -320,33 +324,36 @@ const getCategoryName = (product) => {
                           />
                         </div>
                         <div className="grid gap-3">
-                          <Label htmlFor="brands">Brand</Label>
+                          <Label htmlFor="brand">Brand</Label>
                           <select
-                            id="categories"
-                            name="categories"
-                            value={productForm.categoryId}
-                            onChange={(e) => setProductForm((prev) => ({ ...prev, categoryId: e.target.value }))}
+                            id="brand"
+                            name="brand"
+                            value={productForm.brandId}
+                            onChange={(e) => setProductForm((prev) => ({ ...prev, brandId: e.target.value }))}
                             className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none md:text-sm"
+                            required
                           >
-                            <option value="" disabled>Select a category</option>
-                            {Array.isArray(uniqueCategories) && uniqueCategories.map((category) => (
-                              <option key={category} value={category}>
-                                {category}
+                            <option value="" disabled>Select a brand</option>
+                            {Array.isArray(uniqueBrands) && uniqueBrands.map((brand) => (
+                              <option key={brand} value={brand}>
+                                {brand}
                               </option>
                             ))}
                           </select>
                         </div>
                         <div className="grid gap-3">
-                          <Label htmlFor="categories">Category</Label>
+                          <Label htmlFor="category">Category</Label>
                           <select className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary 
                             selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border
                              bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex
                               file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none 
-                              disabled:cursor-not-allowed disabled:opacity-50 md:text-sm' name="categories" id="categories">
-                              {Array.isArray(uniqueCategories) && uniqueCategories.map((Category) => (
-                                <option key={Category} value={productForm.categoryId}
-                                    onChange={(e) => setProductForm((prev) => ({ ...prev, categoryId: e.target.value }))}>
-                                  {Category}
+                              disabled:cursor-not-allowed disabled:opacity-50 md:text-sm' name="category" id="category" value={productForm.categoryId}
+                            onChange={(e) => setProductForm((prev) => ({ ...prev, categoryId: e.target.value }))}
+                            required>
+                              <option value="" disabled>Select a category</option>
+                              {Array.isArray(uniqueCategories) && uniqueCategories.map((category) => (
+                                <option key={category} value={category}>
+                                  {category}
                                 </option>
                               ))}
                           </select>
@@ -358,8 +365,8 @@ const getCategoryName = (product) => {
                         </DialogClose>
                         <Button type="submit">Save changes</Button>
                       </DialogFooter>
+                      </form>
                     </DialogContent>
-                  </form>
                 </Dialog>
             }
            
