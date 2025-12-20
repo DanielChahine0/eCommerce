@@ -107,7 +107,7 @@ export default function ProductDetails() {
 
               <div className="mt-16 space-y-2 text-xl leading-tight">
                 <div>Price: <span className="font-bold">${product.price}</span></div>
-                <div>Quantity Available: <span className="font-bold">{product.stockQuantity}</span></div>
+                <div>Quantity Available: <span className="font-bold">{product.quantity}</span></div>
               </div>
             </div>
 
@@ -155,9 +155,9 @@ export default function ProductDetails() {
                       className="h-10 w-28 appearance-none rounded-md border border-gray-500 bg-gray-200 px-3 pr-10 text-sm outline-none focus:ring-2 focus:ring-gray-400"
                       value={quantity}
                       onChange={(e) => setQuantity(Number(e.target.value))}
-                      disabled={product.stockQuantity === 0}
+                      disabled={product.quantity === 0}
                     >
-                      {Array.from({ length: Math.min(product.stockQuantity, 10) }, (_, index) => {
+                      {Array.from({ length: Math.min(product.quantity, 10) }, (_, index) => {
                         const value = index + 1;
                         return (
                           <option key={value} value={value}>
@@ -184,9 +184,9 @@ export default function ProductDetails() {
                   <button 
                     className="h-10 rounded-md bg-gray-200 px-5 text-sm font-medium text-gray-900 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleAddToCart}
-                    disabled={product.stockQuantity === 0 || addingToCart}
+                    disabled={product.quantity === 0 || addingToCart}
                   >
-                    {addingToCart ? "Adding..." : product.stockQuantity === 0 ? "Out of Stock" : "Add to Cart"}
+                    {addingToCart ? "Adding..." : product.quantity === 0 ? "Out of Stock" : "Add to Cart"}
                   </button>
                 </div>
               </div>
