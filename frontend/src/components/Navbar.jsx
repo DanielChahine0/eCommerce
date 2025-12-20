@@ -27,7 +27,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth()
   const dispatch = useDispatch()
-  const basketItems = useSelector((state) => state.basket.items)
+  const cartCount = useSelector((state) => state.basket.items.length)
   const [isOpen, setIsOpen] = useState(false)
   const location = useLocation()
 
@@ -39,8 +39,6 @@ export default function Navbar() {
       dispatch(loadLocalBasket())
     }
   }, [user, dispatch])
-
-  const cartCount = basketItems.length
 
   const isActive = (path) => location.pathname === path
 

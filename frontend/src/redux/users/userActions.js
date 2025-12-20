@@ -74,6 +74,31 @@ export const updateUserProfile = (userData) => async (dispatch) => {
   }
 };
 
+// Update User (Admin)
+export const updateUser = (id, userData) => async (dispatch) => {
+  dispatch({ type: types.UPDATE_USER_REQUEST });
+
+  try {
+    const user = await api(`/api/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(userData),
+    });
+
+    dispatch({
+      type: types.UPDATE_USER_SUCCESS,
+      payload: user,
+    });
+
+    return user;
+  } catch (error) {
+    dispatch({
+      type: types.UPDATE_USER_FAILURE,
+      payload: error.message,
+    });
+    throw error;
+  }
+};
+
 // Delete User (Admin)
 export const deleteUser = (id) => async (dispatch) => {
   dispatch({ type: types.DELETE_USER_REQUEST });

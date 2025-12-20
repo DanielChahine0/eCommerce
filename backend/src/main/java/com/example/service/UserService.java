@@ -10,6 +10,7 @@ import com.example.exception.ResourceNotFoundException;
 import com.example.model.Address;
 import com.example.model.Role;
 import com.example.model.User;
+import com.example.repository.AddressRepository;
 import com.example.repository.RoleRepository;
 import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -60,6 +64,7 @@ public class UserService {
                     addressDTO.getCountry(),
                     addressDTO.getStreet(),
                     addressDTO.getProvince());
+            address = addressRepository.save(address);
         }
 
         // Create user
@@ -148,7 +153,7 @@ public class UserService {
                         addressDTO.getCountry(),
                         addressDTO.getStreet(),
                         addressDTO.getProvince());
-                user.setAddress(newAddress);
+                user.setAddress(addressRepository.save(newAddress));
             } else {
                 // Update existing address
                 user.getAddress().setZip(addressDTO.getZip());

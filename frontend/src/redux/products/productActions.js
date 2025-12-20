@@ -12,7 +12,6 @@ export const fetchProducts = (jwt) => async (dispatch) => {
       type: types.FETCH_PRODUCTS_SUCCESS,
       payload: products,
     });
-    console.log('Products successfully fetched in action ---->', products);
     return products;
   } catch (error) {
     dispatch({

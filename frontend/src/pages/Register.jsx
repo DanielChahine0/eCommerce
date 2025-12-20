@@ -16,7 +16,8 @@ const [form, setForm] = useState({
   const [error, setError] = useState('')
   const [validationErrors, setValidationErrors] = useState(null)
 
-  async function submit() {
+  async function submit(event) {
+    event.preventDefault()
     try {
       setError('')
       setValidationErrors(null)
@@ -86,7 +87,7 @@ const [form, setForm] = useState({
           </div>
         )}
 
-        <div className="space-y-6">
+        <form onSubmit={submit} className="space-y-6">
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700">Username</label>
@@ -155,12 +156,12 @@ const [form, setForm] = useState({
           </div>
 
           <button
-            onClick={submit}
+            type="submit"
             className="group relative flex w-full justify-center rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg"
           >
             Create Account
           </button>
-        </div>
+        </form>
       </div>
     </div>
   )

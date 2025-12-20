@@ -46,7 +46,6 @@ const orderReducer = (state = initialState, action) => {
       };
 
     case types.UPDATE_ORDER_STATUS_SUCCESS:
-    case types.CANCEL_ORDER_SUCCESS:
       return {
         ...state,
         orders: state.orders.map((order) =>
@@ -55,6 +54,20 @@ const orderReducer = (state = initialState, action) => {
         currentOrder:
           state.currentOrder?.id === action.payload.id
             ? action.payload
+            : state.currentOrder,
+        loading: false,
+        error: null,
+      };
+
+    case types.CANCEL_ORDER_SUCCESS:
+      return {
+        ...state,
+        orders: state.orders.map((order) =>
+          order.id === action.payload.id ? { ...order, ...action.payload } : order
+        ),
+        currentOrder:
+          state.currentOrder?.id === action.payload.id
+            ? { ...state.currentOrder, ...action.payload }
             : state.currentOrder,
         loading: false,
         error: null,

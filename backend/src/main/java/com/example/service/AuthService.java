@@ -7,6 +7,7 @@ import com.example.exception.ResourceNotFoundException;
 import com.example.model.Address;
 import com.example.model.Role;
 import com.example.model.User;
+import com.example.repository.AddressRepository;
 import com.example.repository.RoleRepository;
 import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class AuthService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -56,6 +60,7 @@ public class AuthService {
                     request.getAddress().getCountry(),
                     request.getAddress().getStreet(),
                     request.getAddress().getProvince());
+            address = addressRepository.save(address);
         }
 
         // Create user with encoded password

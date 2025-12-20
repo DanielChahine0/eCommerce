@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, memo, useCallback } from 'react'
+import { useEffect, useState, useMemo, memo, useCallback, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProducts } from '../redux/products/productActions'
 import { Link, useNavigate } from 'react-router-dom'
@@ -7,34 +7,45 @@ import {
   CardContent,
 } from "@/components/ui/card"
 
+const INITIAL_BATCH_SIZE = 20;
+const BATCH_SIZE = 20;
+
 // Memoized Product Card Component
-const ProductCard = memo(({ product, onClick }) => (
-  <article
-    role="button"
-    tabIndex={0}
-    onClick={onClick}
-    className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
-  >
-    <div className="relative h-48 overflow-hidden">
-      <img 
-        src={product.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
-        alt={product.name} 
-        className="w-full h-full object-cover transition-transform duration-500" 
-        loading="lazy"
-      />
-      {product.stockQuantity === 0 && (
-        <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
-      )}
-    </div>
-    <div className="p-5 flex flex-col flex-grow">
-      <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{product?.brandName || "N/A"}</span>
-      <h2 className="font-bold text-lg text-slate-800 mb-1">{product.name}</h2>
-      <div className="mt-auto flex items-center justify-between">
-        <span className="text-xl font-bold text-slate-900">${product.price}</span>
+const ProductCard = memo(({ product, onNavigate, priority }) => {
+  const handleClick = useCallback(() => {
+    onNavigate(product.id);
+  }, [onNavigate, product.id]);
+
+  return (
+    <article
+      role="button"
+      tabIndex={0}
+      onClick={handleClick}
+      className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
+    >
+      <div className="relative h-48 overflow-hidden">
+        <img 
+          src={product.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
+          alt={product.name} 
+          className="w-full h-full object-cover transition-transform duration-500" 
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+          fetchPriority={priority ? "high" : "low"}
+        />
+        {product.stockQuantity === 0 && (
+          <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
+        )}
       </div>
-    </div>
-  </article>
-));
+      <div className="p-5 flex flex-col flex-grow">
+        <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{product?.brandName || "N/A"}</span>
+        <h2 className="font-bold text-lg text-slate-800 mb-1">{product.name}</h2>
+        <div className="mt-auto flex items-center justify-between">
+          <span className="text-xl font-bold text-slate-900">${product.price}</span>
+        </div>
+      </div>
+    </article>
+  );
+});
 
 ProductCard.displayName = 'ProductCard';
 
@@ -62,7 +73,9 @@ export default function Catalog() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const products = useSelector((state) => state.products.products);
-  const [loading, setLoading] = useState(true);
+  const productsLoading = useSelector((state) => state.products.loading);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_BATCH_SIZE);
+  const loadMoreRef = useRef(null);
   
   // State for search, filter, and sort
   const [search, setSearch] = useState('')
@@ -82,17 +95,13 @@ export default function Catalog() {
     const loadProducts = async () => {
       // Only fetch if we don't have products already
       if (products && products.length > 0) {
-        setLoading(false);
         return;
       }
       
       try {
-        setLoading(true);
         await dispatch(fetchProducts());
       } catch (err) {
         console.error("Failed to load products:", err);
-      } finally {
-        setLoading(false);
       }
     };
     loadProducts();
@@ -107,8 +116,59 @@ export default function Catalog() {
     navigate(`/product/${id}`);
   }, [navigate]);
 
+  useEffect(() => {
+    setVisibleCount(INITIAL_BATCH_SIZE);
+  }, [products]);
 
-  if (loading) return <div className="text-center py-20">Loading Catalogue...</div>;
+  useEffect(() => {
+    if (!loadMoreRef.current) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (!entry.isIntersecting) return;
+
+        setVisibleCount((count) => {
+          if (count >= products.length) return count;
+          return Math.min(count + BATCH_SIZE, products.length);
+        });
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [products.length]);
+
+  const visibleProducts = useMemo(() => {
+    if (!products?.length) return [];
+    return products.slice(0, visibleCount);
+  }, [products, visibleCount]);
+
+  const isLoading = productsLoading && products.length === 0;
+  const hasMore = visibleProducts.length < products.length;
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20">
+        <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
+          {Array.from({ length: 10 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="animate-pulse rounded-2xl border border-slate-100 bg-white shadow-sm"
+            >
+              <div className="h-48 bg-slate-200" />
+              <div className="p-5 space-y-3">
+                <div className="h-3 w-1/3 rounded bg-slate-200" />
+                <div className="h-4 w-3/4 rounded bg-slate-200" />
+                <div className="h-5 w-1/2 rounded bg-slate-200" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
 
@@ -161,14 +221,18 @@ export default function Catalog() {
 
           <p className='font-bold'>Trending Items </p>  
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
-            {products.map(p => (
+            {visibleProducts.map((p, index) => (
               <ProductCard 
                 key={p.id}
                 product={p}
-                onClick={() => handleProductClick(p.id)}
+                onNavigate={handleProductClick}
+                priority={index < 5}
               />
             ))}
           </div>
+          {hasMore && (
+            <div ref={loadMoreRef} className="h-10 w-full" />
+          )}
 
 
 

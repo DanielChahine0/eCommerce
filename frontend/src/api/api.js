@@ -1,12 +1,15 @@
 // Initialize token from localStorage on module load
 let AUTH_TOKEN = null
-// Use environment variable for API base URL
 
 const BASE_URL = import.meta.env.VITE_DEVELOPMENT === 'production' 
   ? 'http://localhost:8080'
   : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080');
 
-console.log('API Base URL:', BASE_URL);
+const DEBUG_API = import.meta.env.DEV && import.meta.env.VITE_DEBUG_API === 'true';
+
+if (DEBUG_API) {
+  console.log('API Base URL:', BASE_URL);
+}
 
 // Load token from localStorage when module is first imported
 if (typeof window !== 'undefined') {
@@ -45,7 +48,9 @@ const CacheManager = {
       // Clean old cache entries if too many
       this.cleanup();
     } catch (e) {
-      console.warn('Cache storage failed:', e);
+      if (DEBUG_API) {
+        console.warn('Cache storage failed:', e);
+      }
     }
   },
   
@@ -118,7 +123,9 @@ const CacheManager = {
         });
       }
     } catch (e) {
-      console.warn('Cache cleanup failed:', e);
+      if (DEBUG_API) {
+        console.warn('Cache cleanup failed:', e);
+      }
     }
   },
   
@@ -177,7 +184,9 @@ export async function api(path, options = {}) {
   if (method === 'GET') {
     const cached = CacheManager.get(cacheKey);
     if (cached) {
-      console.log('📦 Cache Hit:', path);
+      if (DEBUG_API) {
+        console.log('Cache Hit:', path);
+      }
       return cached;
     }
   }
@@ -196,28 +205,31 @@ export async function api(path, options = {}) {
     },
   }
 
-  // Log request details for debugging
-  console.group('🚀 API Request');
-  console.log('URL:', url);
-  console.log('Method:', config.method || 'GET');
-  console.log('Headers:', config.headers);
-  console.log('Body:', options.body ? JSON.parse(options.body) : null);
-  console.groupEnd();
+  if (DEBUG_API) {
+    console.group('API Request');
+    console.log('URL:', url);
+    console.log('Method:', config.method || 'GET');
+    console.log('Headers:', config.headers);
+    console.log('Body:', options.body ? JSON.parse(options.body) : null);
+    console.groupEnd();
+  }
 
   let res;
   try {
     res = await fetch(url, config)
   } catch (fetchError) {
-    console.group('❌ API Fetch Error');
-    console.error('Network Error:', fetchError.message);
-    console.error('URL:', url);
-    console.error('Stack Trace:', fetchError.stack);
-    console.error('Possible causes:');
-    console.error('  1. Backend server is not running');
-    console.error('  2. Backend is running on a different port');
-    console.error('  3. CORS configuration issue');
-    console.error('  4. Network connectivity problem');
-    console.groupEnd();
+    if (DEBUG_API) {
+      console.group('API Fetch Error');
+      console.error('Network Error:', fetchError.message);
+      console.error('URL:', url);
+      console.error('Stack Trace:', fetchError.stack);
+      console.error('Possible causes:');
+      console.error('  1. Backend server is not running');
+      console.error('  2. Backend is running on a different port');
+      console.error('  3. CORS configuration issue');
+      console.error('  4. Network connectivity problem');
+      console.groupEnd();
+    }
     
     throw new Error(`Network error: ${fetchError.message}. Please ensure the backend server is running on ${BASE_URL}`);
   }
@@ -226,32 +238,42 @@ export async function api(path, options = {}) {
     let errorMessage
     let validationErrors = null
     try {
-      // Try to parse as JSON first
-      const errorData = await res.json()
+      // Read once, then parse to avoid "body stream already read"
+      const errorText = await res.text()
+      let errorData = null
+      try {
+        errorData = errorText ? JSON.parse(errorText) : null
+      } catch {
+        errorData = null
+      }
       
       // Handle ErrorResponse structure from backend
-      if (errorData.validationErrors) {
+      if (errorData && errorData.validationErrors) {
         validationErrors = errorData.validationErrors
         const errorList = Object.entries(errorData.validationErrors)
           .map(([field, msg]) => `${field}: ${msg}`)
           .join(', ')
         errorMessage = `${errorData.message || 'Validation failed'}: ${errorList}`
-      } else {
+      } else if (errorData) {
         errorMessage = errorData.message || errorData.error || JSON.stringify(errorData)
+      } else {
+        errorMessage = errorText
       }
     } catch {
       // If not JSON, get as text
-      errorMessage = await res.text()
+      errorMessage = 'Request failed'
     }
     
-    console.group('⚠️ API Error Response');
-    console.error('Status:', res.status, res.statusText);
-    console.error('URL:', url);
-    console.error('Message:', errorMessage);
-    if (validationErrors) {
-      console.error('Validation Errors:', validationErrors);
+    if (DEBUG_API) {
+      console.group('API Error Response');
+      console.error('Status:', res.status, res.statusText);
+      console.error('URL:', url);
+      console.error('Message:', errorMessage);
+      if (validationErrors) {
+        console.error('Validation Errors:', validationErrors);
+      }
+      console.groupEnd();
     }
-    console.groupEnd();
     
     const error = new Error(errorMessage || `HTTP ${res.status}: ${res.statusText}`)
     error.status = res.status;
@@ -261,6 +283,15 @@ export async function api(path, options = {}) {
     throw error
   }
   
+  if (res.status === 204) {
+    return null
+  }
+
+  const contentType = res.headers.get('content-type') || ''
+  if (!contentType.includes('application/json')) {
+    return await res.text()
+  }
+
   const data = await res.json()
   
   // Cache GET requests
@@ -277,10 +308,12 @@ export async function api(path, options = {}) {
     }
   }
   
-  console.group('✅ API Response');
-  console.log('URL:', url);
-  console.log('Data:', data);
-  console.groupEnd();
+  if (DEBUG_API) {
+    console.group('API Response');
+    console.log('URL:', url);
+    console.log('Data:', data);
+    console.groupEnd();
+  }
   return data
 }
 

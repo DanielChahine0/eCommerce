@@ -56,7 +56,6 @@ export default function SearchProduct() {
   }, [product_name]);
 
   const searchResults = useSelector((state) => state.products?.searchResults ?? []);
-  console.log("Retrieved searchResult ---->", searchResults)
 
   useEffect(() => {
     if (q) {

@@ -93,9 +93,8 @@ export const updateOrderStatus = (id, status) => async (dispatch) => {
   dispatch({ type: types.UPDATE_ORDER_STATUS_REQUEST });
   
   try {
-    const order = await api(`/api/orders/${id}/status`, {
-      method: 'PUT',
-      body: JSON.stringify({ status }),
+    const order = await api(`/api/orders/${id}/status?status=${encodeURIComponent(status)}`, {
+      method: 'PATCH',
     });
     
     dispatch({
@@ -118,13 +117,13 @@ export const cancelOrder = (id) => async (dispatch) => {
   dispatch({ type: types.CANCEL_ORDER_REQUEST });
   
   try {
-    const order = await api(`/api/orders/${id}/cancel`, {
-      method: 'PUT',
+    const order = await api(`/api/orders/${id}`, {
+      method: 'DELETE',
     });
     
     dispatch({
       type: types.CANCEL_ORDER_SUCCESS,
-      payload: order,
+      payload: order || { id, status: 'CANCELLED' },
     });
     
     return order;
