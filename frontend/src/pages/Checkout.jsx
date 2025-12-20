@@ -138,7 +138,7 @@ export default function Checkout() {
       console.error('Full Error Object:', err);
       console.error('---');
       console.error('Troubleshooting Steps:');
-      console.error('1. Check if backend server is running on http://localhost:8080');
+      console.error('1. Check if backend server is running on https://ecommerce-gvin.onrender.com');
       console.error('2. Check browser console for CORS errors');
       console.error('3. Verify network tab for request details');
       console.error('4. Check backend logs for errors');
