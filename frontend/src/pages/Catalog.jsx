@@ -1,7 +1,10 @@
 import { useEffect, useState, useMemo, memo, useCallback, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProducts } from '../redux/products/productActions'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { Heart } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
+import { getLikedProducts, toggleLikedProduct } from '../utils/likes'
 import {
   Card,
   CardContent,
@@ -11,7 +14,7 @@ const INITIAL_BATCH_SIZE = 20;
 const BATCH_SIZE = 20;
 
 // Memoized Product Card Component
-const ProductCard = memo(({ product, onNavigate, priority }) => {
+const ProductCard = memo(({ product, onNavigate, onToggleLike, liked, priority }) => {
   const handleClick = useCallback(() => {
     onNavigate(product.id);
   }, [onNavigate, product.id]);
@@ -32,6 +35,14 @@ const ProductCard = memo(({ product, onNavigate, priority }) => {
           decoding="async"
           fetchPriority={priority ? "high" : "low"}
         />
+        <button
+          type="button"
+          onClick={(event) => onToggleLike(event, product)}
+          className="absolute right-3 top-3 rounded-full bg-white/90 p-1.5 text-slate-700 shadow-sm transition hover:text-red-500"
+          aria-label={liked ? "Unlike product" : "Like product"}
+        >
+          <Heart className={`h-4 w-4 ${liked ? "fill-red-500 text-red-500" : ""}`} />
+        </button>
         {product.stockQuantity === 0 && (
           <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
         )}
@@ -72,10 +83,14 @@ CategoryCard.displayName = 'CategoryCard';
 export default function Catalog() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const products = useSelector((state) => state.products.products);
   const productsLoading = useSelector((state) => state.products.loading);
   const [visibleCount, setVisibleCount] = useState(INITIAL_BATCH_SIZE);
   const loadMoreRef = useRef(null);
+  const [likedIds, setLikedIds] = useState(
+    () => new Set(getLikedProducts(user).map((item) => item.id))
+  );
   
   // State for search, filter, and sort
   const [search, setSearch] = useState('')
@@ -107,6 +122,10 @@ export default function Catalog() {
     loadProducts();
   }, [dispatch, products]);
 
+  useEffect(() => {
+    setLikedIds(new Set(getLikedProducts(user).map((item) => item.id)));
+  }, [user]);
+
   // Memoize navigation callbacks
   const handleProductClick = useCallback((id) => {
     navigate(`/product/${id}`);
@@ -115,6 +134,12 @@ export default function Catalog() {
   const handleCategoryClick = useCallback((id) => {
     navigate(`/product/${id}`);
   }, [navigate]);
+
+  const handleToggleLike = useCallback((event, product) => {
+    event.stopPropagation();
+    const updated = toggleLikedProduct(product, user);
+    setLikedIds(new Set(updated.map((item) => item.id)));
+  }, [user]);
 
   useEffect(() => {
     setVisibleCount(INITIAL_BATCH_SIZE);
@@ -226,6 +251,8 @@ export default function Catalog() {
                 key={p.id}
                 product={p}
                 onNavigate={handleProductClick}
+                onToggleLike={handleToggleLike}
+                liked={likedIds.has(p.id)}
                 priority={index < 5}
               />
             ))}

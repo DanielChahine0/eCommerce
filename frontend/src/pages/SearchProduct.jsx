@@ -2,22 +2,20 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useId, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import { Heart } from "lucide-react";
 import { searchProducts } from '../redux/products/productActions';
-
-
-
-
-
+import { useAuth } from "../context/AuthContext";
+import { getLikedProducts, toggleLikedProduct } from "../utils/likes";
 
 const getBrandName = (product) => {
-  if (typeof product.brandName === "string") return product.brandName;
-  if (typeof product.brand === "string") return product.brand;
+  if (typeof product.brandName === "string") return product.brandName.trim();
+  if (typeof product.brand === "string") return product.brand.trim();
   return "";
 };
 
 const getCategoryName = (product) => {
-  if (typeof product.categoryName === "string") return product.categoryName;
-  if (typeof product.category === "string") return product.category;
+  if (typeof product.categoryName === "string") return product.categoryName.trim();
+  if (typeof product.category === "string") return product.category.trim();
   return "";
 };
 
@@ -36,6 +34,7 @@ const getPrice = (product) => {
 export default function SearchProduct() {
   const uid = useId();
   const dispatch = useDispatch();
+  const { user } = useAuth();
 
   const step = 1;
 
@@ -44,22 +43,14 @@ export default function SearchProduct() {
   const [category, setCategory] = useState("All");
   const [selectedBrands, setSelectedBrands] = useState(new Set());
   const [sortBy, setSortBy] = useState("Price");
-  const [appliedFilters, setAppliedFilters] = useState(null);
+  const [likedIds, setLikedIds] = useState(
+    () => new Set(getLikedProducts(user).map((item) => item.id))
+  );
   const navigate = useNavigate();
   const selectedBrandsArray = useMemo(
     () => Array.from(selectedBrands),
     [selectedBrands]
   );
-
-  const applyFilters = () => {
-    setAppliedFilters({
-      value,
-      includeOOS,
-      category,
-      selectedBrands: new Set(selectedBrands),
-      sortBy,
-    });
-  };
 
   const { product_name } = useParams();
   const q = useMemo(() => {
@@ -78,6 +69,10 @@ export default function SearchProduct() {
       dispatch(searchProducts(q));
     }
   }, [dispatch, q]);
+
+  useEffect(() => {
+    setLikedIds(new Set(getLikedProducts(user).map((item) => item.id)));
+  }, [user]);
 
 
 
@@ -100,15 +95,10 @@ export default function SearchProduct() {
     };
   }, [searchResults]);
 
-
-
-    
   const categoryOptions = useMemo(() => {
     return ["All", ...uniqueCategories];
   }, [uniqueCategories]);
 
-
-  // get Min and Max Prices
   const { minPrice, maxPrice } = useMemo(() => {
     if (!searchResults.length) {
       return { minPrice: 0, maxPrice: 100 };
@@ -144,15 +134,10 @@ export default function SearchProduct() {
     }
   }, [category, categoryOptions]);
 
-
   const filteredResults = useMemo(() => {
-    // If the user hasn't applied filters yet, show raw search results
-    if (!appliedFilters) return searchResults;
-
-    const { value: appliedValue, includeOOS: appliedOOS, category: appliedCategory, selectedBrands: appliedSelectedBrands, sortBy: appliedSort } = appliedFilters;
-    const normalizedCategory = appliedCategory;
+    const normalizedCategory = category?.trim();
     const hasCategoryFilter = normalizedCategory && normalizedCategory !== "All";
-    const brandFilterActive = appliedSelectedBrands && appliedSelectedBrands.size > 0;
+    const brandFilterActive = selectedBrandsArray.length > 0;
 
     const results = searchResults.filter((product) => {
       const price = getPrice(product);
@@ -160,26 +145,34 @@ export default function SearchProduct() {
       const brandName = getBrandName(product);
       const categoryName = getCategoryName(product);
 
-      if (!appliedOOS && quantity <= 0) return false;
-      if (Number.isFinite(price) && price > appliedValue) return false;
+      if (!includeOOS && quantity <= 0) return false;
+      if (Number.isFinite(price) && price > value) return false;
       if (hasCategoryFilter && categoryName.toLowerCase() !== normalizedCategory.toLowerCase()) {
         return false;
       }
-      if (brandFilterActive && !appliedSelectedBrands.has(brandName)) {
+      if (brandFilterActive && !selectedBrands.has(brandName)) {
         return false;
       }
       return true;
     });
 
-    if (appliedSort === "Price") {
+    if (sortBy === "Price") {
       return results.slice().sort((a, b) => getPrice(a) - getPrice(b));
     }
-    if (appliedSort === "Newest") {
+    if (sortBy === "Newest") {
       return results.slice().sort((a, b) => (b.id ?? 0) - (a.id ?? 0));
     }
 
     return results;
-  }, [searchResults, appliedFilters]);
+  }, [
+    category,
+    includeOOS,
+    searchResults,
+    selectedBrands,
+    selectedBrandsArray.length,
+    sortBy,
+    value,
+  ]);
 
 
 
@@ -200,7 +193,12 @@ export default function SearchProduct() {
     setCategory("All");
     setSelectedBrands(new Set());
     setSortBy("Price");
-    setAppliedFilters(null);
+  };
+
+  const handleToggleLike = (event, product) => {
+    event.stopPropagation();
+    const updated = toggleLikedProduct(product, user);
+    setLikedIds(new Set(updated.map((item) => item.id)));
   };
 
   return (
@@ -309,7 +307,7 @@ export default function SearchProduct() {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                    <Button onClick={applyFilters} className="h-10 flex-1 rounded-xl bg-slate-900 text-white hover:bg-slate-950">
+                  <Button className="h-10 flex-1 rounded-xl bg-slate-900 text-white hover:bg-slate-950">
                     Apply Filters
                   </Button>
                   <Button
@@ -363,6 +361,7 @@ export default function SearchProduct() {
                   {filteredResults.map((product) => {
                     const isOutOfStock = getQuantity(product) <= 0;
                     const brandName = getBrandName(product);
+                    const isLiked = likedIds.has(product.id);
 
                     return (
                       <div
@@ -380,6 +379,14 @@ export default function SearchProduct() {
                             className="h-full w-full object-cover"
                             loading="lazy"
                           />
+                          <button
+                            type="button"
+                            onClick={(event) => handleToggleLike(event, product)}
+                            className="absolute right-2 top-2 rounded-full bg-white/90 p-1.5 text-slate-700 shadow-sm transition hover:text-red-500"
+                            aria-label={isLiked ? "Unlike product" : "Like product"}
+                          >
+                            <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+                          </button>
                           {isOutOfStock && (
                             <div className="absolute left-2 top-2 rounded bg-red-500 px-2 py-1 text-[10px] font-semibold text-white">
                               OUT OF STOCK

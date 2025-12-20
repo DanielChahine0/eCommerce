@@ -8,7 +8,7 @@ const [form, setForm] = useState({
   username: '',
   email: '',
   password: '',
-  roleId: 1, // REQUIRED — backend will reject without this
+  roleId: 2,
   phoneNumber: ''
 })
   const { login } = useAuth()

@@ -96,7 +96,7 @@ export default function Navbar() {
                 <div className="flex items-center gap-3">
                   {/* Access liked items*/}
                   <div className="flex items-center gap-3">
-                    <Button onClick={() => logout()} variant="outline" className="">
+                    <Button onClick={() => navigate("/likes")} variant="outline" className="">
                         <Heart />
                       </Button>
                

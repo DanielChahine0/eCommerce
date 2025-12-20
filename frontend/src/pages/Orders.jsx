@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchOrders } from "../redux/orders/orderActions";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { api } from "../api/api";
 
 export default function Orders() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const orders = useSelector((state) => state.orders.orders);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -18,19 +16,21 @@ export default function Orders() {
       return;
     }
 
-    const loadOrders = async () => {
-      try {
-        setLoading(true);
-        await dispatch(fetchOrders());
-      } catch (err) {
-        setError("Failed to load orders");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadOrders();
-  }, [user, dispatch, navigate]);
+    if (user?.id) {
+      setLoading(true);
+      Promise.all([
+        api(`/api/orders/user/${user.id}`)
+      ]).then(([orders]) => {
+        setOrders(orders);
+      }).catch((error) => {
+        console.error('Error fetching user data:', error);
+        setOrders([]);
+      }).finally(() => setLoading(false));
+    } else {
+      console.log("No user id");
+      setLoading(false);
+    }
+  }, [user, navigate]);
 
   if (loading) {
     return (
@@ -68,7 +68,7 @@ export default function Orders() {
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Order #{order.id}</p>
               <p className="text-sm text-slate-500 font-medium">
-                {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : "N/A"}
+                {order.timeCreated ? new Date(order.timeCreated).toLocaleDateString() : "N/A"}
               </p>
             </div>
             <span className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-wide ${
@@ -86,13 +86,13 @@ export default function Orders() {
             <div>
               <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Destination</p>
               <p className="text-sm font-semibold text-slate-700">
-                {order.shippingAddress?.street || "N/A"}, {order.shippingAddress?.province || "N/A"}
+                {order.address?.street || "N/A"}, {order.address?.province || "N/A"}, {order.address?.country || "N/A"}
               </p>
             </div>
             <div className="text-right">
               <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Total Paid</p>
               <p className="text-xl font-black text-slate-900">
-                ${order.totalAmount?.toFixed(2) || "0.00"}
+                ${order.total?.toFixed(2) || "0.00"}
               </p>
             </div>
           </div>
@@ -101,4 +101,3 @@ export default function Orders() {
     </div>
   );
 }
-
