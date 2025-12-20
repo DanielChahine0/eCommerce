@@ -13,6 +13,7 @@ import Orders from './pages/Orders.jsx'
 import SearchProduct from './pages/SearchProduct.jsx'
 import ThankYou from './pages/ThankYou.jsx'
 import { useReduxInitializer } from './redux/reduxInitializer'
+import CacheStatus from './components/CacheStatus'
 
 
 import Footer from './components/Footer'
@@ -24,6 +25,7 @@ export default function App() {
     <AuthProvider>
       <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col">
         <Navbar />
+        <CacheStatus />
 
         <main className="flex-grow pt-20 px-4 sm:px-6 lg:px-8 mx-auto pb-12 w-full">
           <Routes>

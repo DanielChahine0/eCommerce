@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, memo, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProducts } from '../redux/products/productActions'
 import { Link, useNavigate } from 'react-router-dom'
@@ -7,20 +7,85 @@ import {
   CardContent,
 } from "@/components/ui/card"
 
+// Memoized Product Card Component
+const ProductCard = memo(({ product, onClick }) => (
+  <article
+    role="button"
+    tabIndex={0}
+    onClick={onClick}
+    className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
+  >
+    <div className="relative h-48 overflow-hidden">
+      <img 
+        src={product.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
+        alt={product.name} 
+        className="w-full h-full object-cover transition-transform duration-500" 
+        loading="lazy"
+      />
+      {product.stockQuantity === 0 && (
+        <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
+      )}
+    </div>
+    <div className="p-5 flex flex-col flex-grow">
+      <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{product?.brandName || "N/A"}</span>
+      <h2 className="font-bold text-lg text-slate-800 mb-1">{product.name}</h2>
+      <div className="mt-auto flex items-center justify-between">
+        <span className="text-xl font-bold text-slate-900">${product.price}</span>
+      </div>
+    </div>
+  </article>
+));
+
+ProductCard.displayName = 'ProductCard';
+
+// Memoized Category Card Component
+const CategoryCard = memo(({ category, onClick }) => (
+  <article
+    role="button"
+    tabIndex={0}
+    onClick={onClick}
+    className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
+  >
+    <div className="relative h-48 overflow-hidden">
+      <img src={category.image} alt={category.name} className="w-full h-full object-cover transition-transform duration-500" loading="lazy" />
+    </div>
+    <div className="p-5 flex flex-col flex-grow">
+      <h2 className="font-bold text-lg text-slate-800 mb-1">{category.name}</h2>
+      <div className="mt-auto flex items-center justify-between"></div>
+    </div>
+  </article>
+));
+
+CategoryCard.displayName = 'CategoryCard';
+
 export default function Catalog() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const products = useSelector((state) => state.products.products);
   const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState([])
   
   // State for search, filter, and sort
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('All')
   const [sortConfig, setSortConfig] = useState('newest')
 
+  // Memoize categories to prevent re-creation
+  const categories = useMemo(() => [
+    { id: "101", name: "Jewelry", image: "https://unsplash.com/pt-br/fotografias/fragmento-de-pedra-branca-e-preta-5ngCICAXiH0" },
+    { id: "102", name: "Books", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
+    { id: "103", name: "Tech", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
+    { id: "104", name: "Clothes", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
+    { id: "105", name: "Sports", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
+  ], []);
+
   useEffect(() => {
     const loadProducts = async () => {
+      // Only fetch if we don't have products already
+      if (products && products.length > 0) {
+        setLoading(false);
+        return;
+      }
+      
       try {
         setLoading(true);
         await dispatch(fetchProducts());
@@ -31,19 +96,16 @@ export default function Catalog() {
       }
     };
     loadProducts();
-  }, [dispatch]);
+  }, [dispatch, products]);
 
-  useEffect(() => {
-    // Mock categories - in production, fetch from API
-    const categories = [
-      { id: "101", name: "Jewelry", image: "https://unsplash.com/pt-br/fotografias/fragmento-de-pedra-branca-e-preta-5ngCICAXiH0" },
-      { id: "102", name: "Books", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
-      { id: "103", name: "Tech", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
-      { id: "104", name: "Clothes", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
-      { id: "105", name: "Sports", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
-    ];
-    setCategories(categories);
-  }, []);
+  // Memoize navigation callbacks
+  const handleProductClick = useCallback((id) => {
+    navigate(`/product/${id}`);
+  }, [navigate]);
+
+  const handleCategoryClick = useCallback((id) => {
+    navigate(`/product/${id}`);
+  }, [navigate]);
 
 
   if (loading) return <div className="text-center py-20">Loading Catalogue...</div>;
@@ -100,31 +162,11 @@ export default function Catalog() {
           <p className='font-bold'>Trending Items </p>  
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
             {products.map(p => (
-              <article
+              <ProductCard 
                 key={p.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => navigate(`/product/${p.id}`)}
-                className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
-                    alt={p.name} 
-                    className="w-full h-full object-cover transition-transform duration-500" 
-                  />
-                  {p.stockQuantity === 0 && (
-                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
-                  )}
-                </div>
-                <div className="p-5 flex flex-col flex-grow">
-                  <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p?.brandName || "N/A"}</span>
-                  <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
-                  <div className="mt-auto flex items-center justify-between">
-                    <span className="text-xl font-bold text-slate-900">${p.price}</span>
-                  </div>
-                </div>
-              </article>
+                product={p}
+                onClick={() => handleProductClick(p.id)}
+              />
             ))}
           </div>
 
@@ -132,24 +174,12 @@ export default function Catalog() {
 
           <p className='font-bold mt-6'>Search by Category</p>  
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
-            {categories.map(p => (
-              <article
-                key={p.id}
-                role="button"
-                tabIndex={0}
-                //need to link to category page
-                onClick={() => navigate(`/product/${p.id}`)}
-                // onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`) }}
-                className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
-                </div>
-                <div className="p-5 flex flex-col flex-grow">
-                  <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
-                  <div className="mt-auto flex items-center justify-between"></div>
-                </div>
-              </article>
+            {categories.map(c => (
+              <CategoryCard
+                key={c.id}
+                category={c}
+                onClick={() => handleCategoryClick(c.id)}
+              />
             ))}
           </div>
 

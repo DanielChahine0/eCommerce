@@ -76,10 +76,17 @@ export default function Admin() {
   
 
   useEffect(() => {
-    dispatch(fetchOrders({jwt: localStorage.getItem('authToken')}));
-    dispatch(fetchProducts({jwt: localStorage.getItem('authToken')}));
-    dispatch(fetchUsers({jwt: localStorage.getItem('authToken')}));
-  }, []);
+    // Only fetch if we don't have the data already
+    if (!orders || orders.length === 0) {
+      dispatch(fetchOrders({jwt: localStorage.getItem('authToken')}));
+    }
+    if (!products || products.length === 0) {
+      dispatch(fetchProducts({jwt: localStorage.getItem('authToken')}));
+    }
+    if (!users || users.length === 0) {
+      dispatch(fetchUsers({jwt: localStorage.getItem('authToken')}));
+    }
+  }, [dispatch, orders, products, users]);
 
   // console.log("Orders in Admin Page ---->", orders);
 

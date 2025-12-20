@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductDetails } from "../redux/products/productActions";
@@ -17,10 +17,20 @@ export default function ProductDetails() {
   const [addingToCart, setAddingToCart] = useState(false);
   const {products} = useSelector((state) => state.products);
 
-  const product = products.find((p) => p.id === Number(id));
+  // Memoize product lookup
+  const product = useMemo(() => 
+    products.find((p) => p.id === Number(id)),
+    [products, id]
+  );
 
   useEffect(() => {
     const loadProduct = async () => {
+      // If product is already in Redux state, don't fetch
+      if (product) {
+        setLoading(false);
+        return;
+      }
+      
       try {
         setLoading(true);
         await dispatch(fetchProductDetails(id));
@@ -31,7 +41,7 @@ export default function ProductDetails() {
       }
     };
     loadProduct();
-  }, [id, dispatch]);
+  }, [id, dispatch, product]);
 
   const handleAddToCart = async () => {
     try {
