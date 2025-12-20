@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductDetails } from "../redux/products/productActions";
 import { addToBasket, addToLocalBasket } from "../redux/basket/basketActions";
 import { useAuth } from "../context/AuthContext";
+import { ShoppingCart, ArrowLeft, Check, AlertCircle, Package, Minus, Plus, Star } from "lucide-react";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -15,22 +16,13 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [addingToCart, setAddingToCart] = useState(false);
-  const {products} = useSelector((state) => state.products);
 
-  // Memoize product lookup
-  const product = useMemo(() => 
-    products.find((p) => p.id === Number(id)),
-    [products, id]
-  );
+  const { products, currentProduct } = useSelector((state) => state.products);
+  const product = products.find((p) => p.id === Number(id)) || 
+                  (currentProduct && currentProduct.id === Number(id) ? currentProduct : null);
 
   useEffect(() => {
     const loadProduct = async () => {
-      // If product is already in Redux state, don't fetch
-      if (product) {
-        setLoading(false);
-        return;
-      }
-      
       try {
         setLoading(true);
         await dispatch(fetchProductDetails(id));
@@ -41,17 +33,17 @@ export default function ProductDetails() {
       }
     };
     loadProduct();
-  }, [id, dispatch, product]);
+  }, [id, dispatch]);
 
   const handleAddToCart = async () => {
+    const finalQty = quantity === "" ? 1 : quantity;
+
     try {
       setAddingToCart(true);
       if (user) {
-        // Add to server basket for authenticated users
-        await dispatch(addToBasket(user.id, product.id, quantity));
+        await dispatch(addToBasket(user.id, product.id, finalQty));
       } else {
-        // Add to local basket for guest users
-        dispatch(addToLocalBasket(product, quantity));
+        dispatch(addToLocalBasket(product, finalQty));
       }
       alert("Added to cart successfully!");
     } catch (err) {
@@ -61,150 +53,180 @@ export default function ProductDetails() {
     }
   };
 
+  const handleQuantityChange = (e) => {
+    const val = e.target.value;
+    if (val === "") {
+      setQuantity("");
+      return;
+    }
+    const numVal = parseInt(val);
+    if (isNaN(numVal)) return;
+    const maxStock = product.quantity || product.quantity || 0; 
+
+    if (numVal > maxStock) {
+      setQuantity(maxStock);
+    } else {
+      setQuantity(numVal);
+    }
+  };
+
+  const handleBlur = () => {
+    if (quantity === "" || quantity < 1) {
+      setQuantity(1);
+    }
+  };
+
+  const decreaseQty = () => {
+    if (quantity > 1) setQuantity(Number(quantity) - 1);
+  };
+
+  const increaseQty = () => {
+    const maxStock = product.quantity || product.quantity || 0;
+    if (quantity < maxStock) setQuantity(Number(quantity) + 1);
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-300 p-8 flex items-center justify-center">
-        <div className="text-xl">Loading product details...</div>
-      </div>
-    );
-  }
-
-  if (error && !product) {
-    return (
-      <div className="min-h-screen bg-gray-300 p-8 flex items-center justify-center">
-        <div className="text-xl text-red-600">{error}</div>
-      </div>
-    );
-  }
-
-  if (!product) {
-    return (
-      <div className="min-h-screen bg-gray-300 p-8 flex items-center justify-center">
-        <div className="text-xl">Product not found</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-300 p-8">
-      <div className="mx-auto w-full max-w-6xl bg-white shadow-md">
-        {/* top bar */}
-        <div className="h-10 bg-gray-400" />
-
-        {error && (
-          <div className="mx-10 mt-4 bg-red-50 text-red-600 p-3 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
-
-        <div className="px-10 py-12">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[320px_1fr] lg:gap-16">
-            {/* LEFT */}
-            <div>
-              <div className="h-64 w-full rounded-md bg-gray-200 overflow-hidden">
-                {product.image ? (
-                  <img 
-                    src={product.image} 
-                    alt={product.name} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    No Image
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-16 space-y-2 text-xl leading-tight">
-                <div>Price: <span className="font-bold">${product.price}</span></div>
-                <div>Quantity Available: <span className="font-bold">{product.quantity}</span></div>
-              </div>
-            </div>
-
-            {/* RIGHT */}
-            <div>
-              <h1 className="text-center text-4xl font-medium tracking-tight">
-                {product.name}
-              </h1>
-
-              <div className="mx-auto mt-10 max-w-xl text-sm">
-                <div className="space-y-1">
-                  <div>
-                    <span className="mr-2">Category:</span>
-                    <span className="capitalize">{product.categoryName || "N/A"}</span>
-                  </div>
-                  <div>
-                    <span className="mr-2">Brand:</span>
-                    <span>{product.brandName || "N/A"}</span>
-                  </div>
-                </div>
-
-                <div className="mt-6 space-y-1">
-                  <div>
-                    <span className="mr-1">Price:</span>
-                    <span>${product.price}</span>
-                  </div>
-                  <div>
-                    <span className="mr-2">Quantity Available:</span>
-                    <span>{product.quantity}</span>
-                  </div>
-                </div>
-
-                <div className="mt-10 text-sm font-medium">Description</div>
-
-                <div className="mt-3 rounded-md bg-gray-200 p-6">
-                  <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-gray-900">
-                    {product.description || "No description available"}
-                  </pre>
-                </div>
-
-                <div className="mt-10 flex items-center justify-end gap-4">
-                  {/* quantity dropdown */}
-                  <div className="relative">
-                    <select 
-                      className="h-10 w-28 appearance-none rounded-md border border-gray-500 bg-gray-200 px-3 pr-10 text-sm outline-none focus:ring-2 focus:ring-gray-400"
-                      value={quantity}
-                      onChange={(e) => setQuantity(Number(e.target.value))}
-                      disabled={product.quantity === 0}
-                    >
-                      {Array.from({ length: Math.min(product.quantity, 10) }, (_, index) => {
-                        const value = index + 1;
-                        return (
-                          <option key={value} value={value}>
-                            {value}
-                          </option>
-                        );
-                      })}
-                    </select>
-
-                    <svg
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-800"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-
-                  <button 
-                    className="h-10 rounded-md bg-gray-200 px-5 text-sm font-medium text-gray-900 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={handleAddToCart}
-                    disabled={product.quantity === 0 || addingToCart}
-                  >
-                    {addingToCart ? "Adding..." : product.quantity === 0 ? "Out of Stock" : "Add to Cart"}
-                  </button>
-                </div>
-              </div>
-            </div>
-            {/* /RIGHT */}
-          </div>
+      <div className="min-h-screen bg-white p-6 lg:p-12">
+        <div className="mx-auto max-w-7xl animate-pulse">
+           <div className="h-6 w-24 bg-gray-200 rounded mb-8"></div>
+           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+             <div className="aspect-square bg-gray-200 rounded-xl"></div>
+             <div className="space-y-4 mt-8 lg:mt-0">
+               <div className="h-4 w-32 bg-gray-200 rounded"></div>
+               <div className="h-10 w-3/4 bg-gray-200 rounded"></div>
+               <div className="h-6 w-20 bg-gray-200 rounded"></div>
+             </div>
+           </div>
         </div>
       </div>
+    );
+  }
+
+  if (!loading && !product) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center px-4">
+        <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900">Product not found</h2>
+        <p className="text-gray-600 mt-2">{error || "The product you are looking for does not exist."}</p>
+        <button onClick={() => navigate('/')} className="mt-6 px-6 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors">
+          Back to Store
+        </button>
+      </div>
+    );
+  }
+
+  const currentStock = product.quantity !== undefined ? product.quantity : product.quantity;
+  const isOutOfStock = currentStock === 0;
+
+  return (
+    <div className="min-h-screen bg-white">
+      <nav className="border-b border-gray-100 bg-white sticky top-0 z-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center">
+            <button onClick={() => navigate(-1)} className="group flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+              <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              Back
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
+          <div className="product-image-container">
+            <div className="aspect-square w-full overflow-hidden rounded-2xl bg-gray-100 border border-gray-100 relative group">
+              {product.image ? (
+                <img src={product.image} alt={product.name} className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-gray-400">
+                   <Package className="w-20 h-20 opacity-20" />
+                </div>
+              )}
+              {isOutOfStock && (
+                <div className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Sold Out</div>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-10 px-2 sm:mt-16 sm:px-0 lg:mt-0">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-sm font-medium text-indigo-600 uppercase tracking-wider">{product.brandName || "Brand"}</span>
+              <span className="text-gray-300">|</span>
+              <span className="text-sm text-gray-500 capitalize">{product.categoryName || "General"}</span>
+            </div>
+
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{product.name}</h1>
+
+            <div className="mt-4 flex items-end gap-4">
+              <p className="text-3xl tracking-tight text-gray-900">${product.price}</p>
+            </div>
+
+            <div className="mt-8 border-t border-gray-200 pt-8">
+              <h3 className="text-sm font-medium text-gray-900">Description</h3>
+              <div className="mt-4 prose prose-sm text-gray-600 leading-relaxed">
+                <p>{product.description || "No description available."}</p>
+              </div>
+            </div>
+
+            <div className="mt-8 flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${isOutOfStock ? 'bg-red-500' : 'bg-green-500'}`}></div>
+              <span className="text-sm font-medium text-gray-700">
+                {isOutOfStock ? "Out of Stock" : `${currentStock} items in stock`}
+              </span>
+            </div>
+
+            {error && (
+              <div className="mt-4 p-4 bg-red-50 rounded-md border border-red-100 flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+                <span className="text-sm text-red-600">{error}</span>
+              </div>
+            )}
+
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <div className="flex items-center rounded-lg border border-gray-300 sm:w-32">
+                <button 
+                  type="button"
+                  onClick={decreaseQty}
+                  disabled={quantity <= 1 || isOutOfStock}
+                  className="px-3 py-3 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent rounded-l-lg transition-colors"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                
+                <input 
+                  type="number"
+                  min="1"
+                  max={currentStock}
+                  value={quantity}
+                  onChange={handleQuantityChange}
+                  onBlur={handleBlur}
+                  disabled={isOutOfStock}
+                  className="w-full text-center border-none p-0 focus:ring-0 text-gray-900 font-medium [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                />
+
+                <button 
+                  type="button"
+                  onClick={increaseQty}
+                  disabled={quantity >= currentStock || isOutOfStock}
+                  className="px-3 py-3 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent rounded-r-lg transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={isOutOfStock || addingToCart}
+                className={`flex-1 flex items-center justify-center gap-3 rounded-lg px-8 py-3 text-base font-medium text-white transition-all shadow-sm ${isOutOfStock ? 'bg-gray-300 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800'}`}
+              >
+                {addingToCart ? "Adding..." : isOutOfStock ? "Currently Unavailable" : <><ShoppingCart className="w-5 h-5" /> Add to Cart</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

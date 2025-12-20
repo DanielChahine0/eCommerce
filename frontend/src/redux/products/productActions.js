@@ -1,17 +1,17 @@
 import { api } from '../../api/api';
 import * as types from './productActionTypes';
 
-// Fetch All Products
-export const fetchProducts = (jwt) => async (dispatch) => {
+export const fetchProducts = () => async (dispatch) => {
   dispatch({ type: types.FETCH_PRODUCTS_REQUEST });
   
   try {
-    const products = await api('/api/products')
+    const products = await api('/api/products');
     
     dispatch({
       type: types.FETCH_PRODUCTS_SUCCESS,
       payload: products,
     });
+    console.log('Products fetched:', products);
     return products;
   } catch (error) {
     dispatch({
@@ -49,7 +49,7 @@ export const searchProducts = (query) => async (dispatch) => {
   dispatch({ type: types.SEARCH_PRODUCTS_REQUEST });
   
   try {
-    const products = await api(`/api/products/search?name=${encodeURIComponent(query)}`);
+    const products = await api(`/api/products/search?q=${encodeURIComponent(query)}`);
     
     dispatch({
       type: types.SEARCH_PRODUCTS_SUCCESS,

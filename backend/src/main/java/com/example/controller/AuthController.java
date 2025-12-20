@@ -54,24 +54,19 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        try {
-            UserDTO user = authService.registerUser(registerRequest);
+        UserDTO user = authService.registerUser(registerRequest);
 
-            // Authenticate the newly registered user to generate token
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            user.getEmail(),
-                            registerRequest.getPassword()));
+        // Authenticate the newly registered user to generate token
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        user.getEmail(),
+                        registerRequest.getPassword()));
 
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String token = jwtService.generateToken(userDetails);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String token = jwtService.generateToken(userDetails);
 
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new LoginResponse(token, user));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new LoginResponse(token, user));
     }
 
     @GetMapping("/validate")
