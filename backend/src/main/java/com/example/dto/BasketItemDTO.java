@@ -4,21 +4,17 @@ public class BasketItemDTO {
     
     private Long id;
     private Long userId;
-    private Long productId;
-    private String productName;
+    private ProductDTO product;
     private Integer quantity;
-    private Integer availableStock;
     
     // Constructors
     public BasketItemDTO() {}
     
-    public BasketItemDTO(Long id, Long userId, Long productId, String productName, Integer quantity, Integer availableStock) {
+    public BasketItemDTO(Long id, Long userId, ProductDTO product, Integer quantity) {
         this.id = id;
         this.userId = userId;
-        this.productId = productId;
-        this.productName = productName;
+        this.product = product;
         this.quantity = quantity;
-        this.availableStock = availableStock;
     }
     
     // Getters and Setters
@@ -38,20 +34,12 @@ public class BasketItemDTO {
         this.userId = userId;
     }
     
-    public Long getProductId() {
-        return productId;
+    public ProductDTO getProduct() {
+        return product;
     }
     
-    public void setProductId(Long productId) {
-        this.productId = productId;
-    }
-    
-    public String getProductName() {
-        return productName;
-    }
-    
-    public void setProductName(String productName) {
-        this.productName = productName;
+    public void setProduct(ProductDTO product) {
+        this.product = product;
     }
     
     public Integer getQuantity() {
@@ -60,13 +48,5 @@ public class BasketItemDTO {
     
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
-    }
-    
-    public Integer getAvailableStock() {
-        return availableStock;
-    }
-    
-    public void setAvailableStock(Integer availableStock) {
-        this.availableStock = availableStock;
     }
 }

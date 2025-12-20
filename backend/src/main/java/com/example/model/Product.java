@@ -16,6 +16,9 @@ public class Product {
     @Column(nullable = false)
     private Integer quantity;
     
+    @Column(nullable = false)
+    private Double price;
+    
     @Column(columnDefinition = "TEXT")
     private String description;
     
@@ -32,9 +35,10 @@ public class Product {
     // Constructors
     public Product() {}
     
-    public Product(String name, Integer quantity, String description, String image, Brand brand, Category category) {
+    public Product(String name, Integer quantity, Double price, String description, String image, Brand brand, Category category) {
         this.name = name;
         this.quantity = quantity;
+        this.price = price;
         this.description = description;
         this.image = image;
         this.brand = brand;
@@ -64,6 +68,14 @@ public class Product {
     
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+    
+    public Double getPrice() {
+        return price;
+    }
+    
+    public void setPrice(Double price) {
+        this.price = price;
     }
     
     public String getDescription() {

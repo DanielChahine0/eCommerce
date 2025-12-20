@@ -13,6 +13,10 @@ public class CreateProductRequest {
     @Min(value = 0, message = "Quantity cannot be negative")
     private Integer quantity;
     
+    @NotNull(message = "Price is required")
+    @Min(value = 0, message = "Price cannot be negative")
+    private Double price;
+    
     private String description;
     private String image;
     
@@ -25,9 +29,10 @@ public class CreateProductRequest {
     // Constructors
     public CreateProductRequest() {}
     
-    public CreateProductRequest(String name, Integer quantity, String description, String image, Long brandId, Long categoryId) {
+    public CreateProductRequest(String name, Integer quantity, Double price, String description, String image, Long brandId, Long categoryId) {
         this.name = name;
         this.quantity = quantity;
+        this.price = price;
         this.description = description;
         this.image = image;
         this.brandId = brandId;
@@ -49,6 +54,14 @@ public class CreateProductRequest {
     
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+    
+    public Double getPrice() {
+        return price;
+    }
+    
+    public void setPrice(Double price) {
+        this.price = price;
     }
     
     public String getDescription() {

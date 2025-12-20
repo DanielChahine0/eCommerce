@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.dto.AddToBasketRequest;
 import com.example.dto.BasketItemDTO;
+import com.example.dto.ProductDTO;
 import com.example.exception.InsufficientStockException;
 import com.example.exception.InvalidOperationException;
 import com.example.exception.ResourceNotFoundException;
@@ -140,13 +141,34 @@ public class BasketService {
     }
     
     private BasketItemDTO convertToDTO(Basket basket) {
+        Product product = basket.getProduct();
+        
+        // Create ProductDTO with all product details
+        ProductDTO productDTO = new ProductDTO();
+        productDTO.setId(product.getId());
+        productDTO.setName(product.getName());
+        productDTO.setDescription(product.getDescription());
+        productDTO.setPrice(product.getPrice());
+        productDTO.setImage(product.getImage());
+        productDTO.setQuantity(product.getQuantity());
+        
+        // Set brand information
+        if (product.getBrand() != null) {
+            productDTO.setBrandName(product.getBrand().getName());
+            productDTO.setBrandId(product.getBrand().getId());
+        }
+        
+        // Set category information
+        if (product.getCategory() != null) {
+            productDTO.setCategoryName(product.getCategory().getName());
+            productDTO.setCategoryId(product.getCategory().getId());
+        }
+        
         return new BasketItemDTO(
             basket.getId(),
             basket.getUser().getId(),
-            basket.getProduct().getId(),
-            basket.getProduct().getName(),
-            basket.getQuantity(),
-            basket.getProduct().getQuantity()
+            productDTO,
+            basket.getQuantity()
         );
     }
 }

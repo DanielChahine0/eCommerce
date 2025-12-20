@@ -11,6 +11,7 @@ import { AuthProvider } from './context/AuthContext'
 import Profile from './pages/Profile.jsx'
 import Orders from './pages/Orders.jsx'
 import SearchProduct from './pages/SearchProduct.jsx'
+import ThankYou from './pages/ThankYou.jsx'
 import { useReduxInitializer } from './redux/reduxInitializer'
 
 
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/thank-you" element={<ThankYou />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/admin" element={<Admin />} />

@@ -103,6 +103,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Smart Watch Pro",
                     50,
+                    299.99,
                     "Advanced smartwatch with health tracking and GPS",
                     "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
                     techMaster,
@@ -111,6 +112,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Wireless Headphones",
                     75,
+                    159.99,
                     "Noise-canceling wireless headphones with 30-hour battery",
                     "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
                     techMaster,
@@ -119,6 +121,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "4K Smart TV",
                     25,
+                    799.99,
                     "55-inch 4K Ultra HD Smart LED TV",
                     "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1",
                     smartLife,
@@ -127,6 +130,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Laptop Computer",
                     30,
+                    1299.99,
                     "High-performance laptop with 16GB RAM and 512GB SSD",
                     "https://images.unsplash.com/photo-1496181133206-80ce9b88a853",
                     techMaster,
@@ -136,6 +140,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Classic T-Shirt",
                     200,
+                    24.99,
                     "Comfortable cotton t-shirt in various colors",
                     "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
                     fashionHub,
@@ -144,6 +149,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Denim Jeans",
                     150,
+                    59.99,
                     "Classic fit denim jeans for everyday wear",
                     "https://images.unsplash.com/photo-1542272604-787c3835535d",
                     fashionHub,
@@ -152,6 +158,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Running Shoes",
                     100,
+                    89.99,
                     "Lightweight running shoes with excellent cushioning",
                     "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
                     activeWear,
@@ -161,6 +168,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "The Art of Programming",
                     80,
+                    49.99,
                     "Comprehensive guide to modern programming practices",
                     "https://images.unsplash.com/photo-1532012197267-da84d127e765",
                     readWell,
@@ -169,6 +177,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Mystery Novel Collection",
                     60,
+                    34.99,
                     "Bestselling mystery novels bundle (3 books)",
                     "https://images.unsplash.com/photo-1512820790803-83ca734da794",
                     readWell,
@@ -178,6 +187,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Coffee Maker",
                     45,
+                    79.99,
                     "Programmable coffee maker with thermal carafe",
                     "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6",
                     homeComfort,
@@ -186,6 +196,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Garden Tool Set",
                     35,
+                    44.99,
                     "Complete 10-piece garden tool set with carrying case",
                     "https://images.unsplash.com/photo-1416879595882-3373a0480b5b",
                     homeComfort,
@@ -194,6 +205,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "LED Desk Lamp",
                     90,
+                    39.99,
                     "Adjustable LED desk lamp with USB charging port",
                     "https://images.unsplash.com/photo-1507473885765-e6ed057f782c",
                     smartLife,
@@ -203,6 +215,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Yoga Mat",
                     120,
+                    29.99,
                     "Premium non-slip yoga mat with carrying strap",
                     "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f",
                     sportPro,
@@ -211,6 +224,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Camping Tent",
                     40,
+                    149.99,
                     "4-person weatherproof camping tent",
                     "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d",
                     sportPro,
@@ -219,6 +233,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Basketball",
                     85,
+                    34.99,
                     "Official size and weight basketball",
                     "https://images.unsplash.com/photo-1546519638-68e109498ffc",
                     sportPro,
@@ -228,6 +243,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Building Blocks Set",
                     110,
+                    39.99,
                     "500-piece creative building blocks set",
                     "https://images.unsplash.com/photo-1558060370-d644479cb6f7",
                     playTime,
@@ -236,6 +252,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Board Game Collection",
                     70,
+                    54.99,
                     "Classic board games family pack",
                     "https://images.unsplash.com/photo-1606167668584-78701c57f13d",
                     playTime,
@@ -245,6 +262,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Organic Coffee Beans",
                     95,
+                    18.99,
                     "Premium organic whole coffee beans (1kg)",
                     "https://images.unsplash.com/photo-1559056199-641a0ac8b55e",
                     freshChoice,
@@ -253,6 +271,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Green Tea Collection",
                     130,
+                    12.99,
                     "Assorted premium green tea varieties (20 bags)",
                     "https://images.unsplash.com/photo-1556679343-c7306c1976bc",
                     freshChoice,
@@ -262,6 +281,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Skincare Set",
                     65,
+                    89.99,
                     "Complete daily skincare routine set",
                     "https://images.unsplash.com/photo-1556228578-0d85b1a4d571",
                     beautyGlow,
@@ -270,6 +290,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Electric Toothbrush",
                     55,
+                    69.99,
                     "Rechargeable electric toothbrush with multiple modes",
                     "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04",
                     beautyGlow,
@@ -278,6 +299,7 @@ public class DataInitializer {
             productRepository.save(new Product(
                     "Fitness Tracker",
                     80,
+                    129.99,
                     "Water-resistant fitness tracker with heart rate monitor",
                     "https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6",
                     sportPro,
