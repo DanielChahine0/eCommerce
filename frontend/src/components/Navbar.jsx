@@ -57,12 +57,31 @@ export default function Navbar() {
             Kuik
             </Button>
 
+
+
+
+          //Search Logic
           <div className='relative flex items-center'>
             <Search className="absolute  left-120 text-slate-500 hover:cursor-pointer" 
             onClick={() => navigate(`/product/${document.querySelector('input').value}`)} />
+
+
             <Input type="email" placeholder="Search for an item" className='w-lg'
-            onKeyDown={(e) => e.key === 'Enter' && navigate(`/product/${e.target.value}`)} />
-          </div>      
+            onKeyDown={
+              (e) => {
+              if (e.key !== "Enter") return;
+              const q = e.currentTarget.value.trim();
+              if (!q) return;
+              navigate(`/search/${encodeURIComponent(q)}`);
+            }} 
+            />
+          </div>
+
+
+
+
+
+
             {/* if user is signed in - do this, otherwise have different dashboard */}
           <div className="hidden md:flex items-center space-x-8">
 

@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { useId, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useId, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { fetchProducts, searchProducts } from '../redux/products/productActions';
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const categories = ["Electronics", "Books", "Clothes", "Sports", "Home", "Toys"];
@@ -8,6 +10,9 @@ const brands = ["Adidas", "Nike", "Puma", "Reebok", "Under Armour"];
 
 export default function SearchProduct() {
   const uid = useId();
+  const dispatch = useDispatch();
+
+
 
   const min = 1;
   const max = 100;
@@ -19,11 +24,50 @@ export default function SearchProduct() {
   const [selectedBrands, setSelectedBrands] = useState(new Set());
   const [sortBy, setSortBy] = useState("Price");
   const navigate = useNavigate();
-
   const selectedBrandsArray = useMemo(
     () => Array.from(selectedBrands),
     [selectedBrands]
   );
+
+  // select searchResults from redux safely (avoid errors if slice not yet initialized)
+  const q = new URLSearchParams(location.search).get('name')?.trim();
+  console.log(q);
+
+  const searchResults = useSelector((state) => state.products?.searchResults ?? []);
+  console.log("Retrieved searchResult ---->", searchResults)
+
+  useEffect(() => {
+    if (q) {
+      dispatch(searchProducts(q));
+    }
+  }, [dispatch, q]);
+
+
+
+
+  const { uniqueBrands, uniqueCategories } = useMemo(() => {
+    const brandSet = new Set();
+    const categorySet = new Set();
+
+    for (const p of searchResults) {
+      // adjust these if your fields are nested (e.g., p.brand.name)
+      const brand = typeof p.brand === "string" ? p.brand.trim() : "";
+      const category = typeof p.category === "string" ? p.category.trim() : "";
+
+      if (brand) brandSet.add(brand);
+      if (category) categorySet.add(category);
+    }
+
+    return {
+      uniqueBrands: Array.from(brandSet).sort(),
+      uniqueCategories: Array.from(categorySet).sort(),
+    };
+  }, [searchResults]);
+
+
+
+
+  
 
   const toggleBrand = (brand) => {
     setSelectedBrands((prev) => {
@@ -122,7 +166,7 @@ export default function SearchProduct() {
                   <div className="mb-2 text-xs font-semibold text-slate-900">Brands</div>
 
                   <div className="grid grid-cols-1 gap-2">
-                    {brands.map((b) => {
+                    {uniqueBrands.map((b) => {
                       const checkboxId = `${uid}-${b.replace(/\s+/g, "-").toLowerCase()}`;
                       const checked = selectedBrands.has(b);
 

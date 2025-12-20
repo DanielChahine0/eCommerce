@@ -6,11 +6,7 @@ export const fetchProducts = (jwt) => async (dispatch) => {
   dispatch({ type: types.FETCH_PRODUCTS_REQUEST });
   
   try {
-    const products = await api('/api/products', {
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-      },
-    });
+    const products = await api('/api/products')
     
     dispatch({
       type: types.FETCH_PRODUCTS_SUCCESS,
