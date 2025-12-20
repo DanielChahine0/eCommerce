@@ -5,9 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { searchProducts } from '../redux/products/productActions';
 
 
-const HandleFilter = () => {
 
-};
 
 
 

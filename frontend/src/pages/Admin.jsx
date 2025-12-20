@@ -21,6 +21,36 @@ import { Input } from "@/components/ui/input"
 
 const ORDER_STATUSES = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
 
+const CategoryId = {
+   "Electronics" : 1,
+  "Clothing" : 2,
+   "Books" : 3,
+   "Home & Garden" : 4,
+"Sports & Outdoors" : 5,
+  "Toys & Games": 6,
+   "Food & Beverages": 7,
+  "Health & Beauty": 8
+}
+
+const BrandId = {
+  "TechMaster" : 1,
+  "FashionHub" : 2,
+  "ReadWell" : 3,
+  "HomeComfort" : 4,
+  "SportPro" : 5,
+  "PlayTime" : 6,
+  "FreshChoice" : 7,
+  "BeautyGlow" : 8,
+  "SmartLife" : 9,
+}
+
+const toCategoryId = (label) => CategoryId[label] ?? null;
+const toBrandId = (label) => BrandId[label] ?? null;
+
+
+
+
+
 export default function Admin() {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState('sales');
@@ -39,9 +69,49 @@ export default function Admin() {
     categoryId: '',
   });
 
+
+
   const { orders } = useSelector((state) => state.orders);
   const { products } = useSelector((state) => state.products);
   const { users } = useSelector((state) => state.users);
+
+  //   const brandNames = [...new Set(products.map((p) => p.brand))];
+  // const categoryNames = [...new Set(products.map((p) => p.category))];
+
+  const getBrandName = (product) => {
+  if (typeof product.brandName === "string") return product.brandName;
+  if (typeof product.brand === "string") return product.brand;
+  return "";
+};
+
+const getCategoryName = (product) => {
+  if (typeof product.categoryName === "string") return product.categoryName;
+  if (typeof product.category === "string") return product.category;
+  return "";
+};
+
+  const { uniqueBrands, uniqueCategories } = useMemo(() => {
+    const brandSet = new Set();
+    const categorySet = new Set();
+
+    const list = Array.isArray(products) ? products : [];
+
+    for (const p of list) {
+      const brand = getBrandName(p);
+      const category = getCategoryName(p);
+
+      if (brand) brandSet.add(brand);
+      if (category) categorySet.add(category);
+    }
+
+    return {
+      uniqueBrands: Array.from(brandSet).sort(),
+      uniqueCategories: Array.from(categorySet).sort(),
+    };
+  }, [products]);
+
+    console.log(uniqueCategories)
+    console.log(uniqueBrands)
 
   const authToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
 
@@ -119,8 +189,8 @@ export default function Admin() {
       price: Number(productForm.price),
       description: productForm.description.trim(),
       image: productForm.image.trim(),
-      brandId: Number(productForm.brandId),
-      categoryId: Number(productForm.categoryId),
+      brandId: Number(toBrandId(productForm.brandId)),
+      categoryId: Number( toCategoryId(productForm.categoryId)),
     };
 
     if (
@@ -250,28 +320,36 @@ export default function Admin() {
                           />
                         </div>
                         <div className="grid gap-3">
-                          <Label htmlFor="brandId-1">Brand ID</Label>
-                          <Input
-                            id="brandId-1"
-                            name="brandId"
-                            type="number"
-                            min="1"
-                            value={productForm.brandId}
-                            onChange={(e) => setProductForm((prev) => ({ ...prev, brandId: e.target.value }))}
-                            required
-                          />
-                        </div>
-                        <div className="grid gap-3">
-                          <Label htmlFor="categoryId-1">Category ID</Label>
-                          <Input
-                            id="categoryId-1"
-                            name="categoryId"
-                            type="number"
-                            min="1"
+                          <Label htmlFor="brands">Brand</Label>
+                          <select
+                            id="categories"
+                            name="categories"
                             value={productForm.categoryId}
                             onChange={(e) => setProductForm((prev) => ({ ...prev, categoryId: e.target.value }))}
-                            required
-                          />
+                            className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none md:text-sm"
+                          >
+                            <option value="" disabled>Select a category</option>
+                            {Array.isArray(uniqueCategories) && uniqueCategories.map((category) => (
+                              <option key={category} value={category}>
+                                {category}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="grid gap-3">
+                          <Label htmlFor="categories">Category</Label>
+                          <select className='file:text-foreground placeholder:text-muted-foreground selection:bg-primary 
+                            selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border
+                             bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex
+                              file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none 
+                              disabled:cursor-not-allowed disabled:opacity-50 md:text-sm' name="categories" id="categories">
+                              {Array.isArray(uniqueCategories) && uniqueCategories.map((Category) => (
+                                <option key={Category} value={productForm.categoryId}
+                                    onChange={(e) => setProductForm((prev) => ({ ...prev, categoryId: e.target.value }))}>
+                                  {Category}
+                                </option>
+                              ))}
+                          </select>
                         </div>
                       </div>
                       <DialogFooter>
@@ -544,6 +622,7 @@ function Modal({ children, onClose }) {
 }
 
 function InventoryTable({ products, onUpdate }) {
+  const list = Array.isArray(products) ? products : [];
   return (
     <table className="w-full text-left">
       <thead className="bg-slate-50 border-b">
@@ -554,7 +633,7 @@ function InventoryTable({ products, onUpdate }) {
         </tr>
       </thead>
       <tbody>
-        {products.map(p => (
+        {list.map(p => (
           <tr key={p.id} className="border-b">
             <td className="p-4 font-medium">{p.name}</td>
             <td className="p-4">
@@ -575,6 +654,7 @@ function InventoryTable({ products, onUpdate }) {
 }
 
 function UsersTable({ users, onManage }) {
+  const list = Array.isArray(users) ? users : [];
   return (
     <table className="w-full text-left">
       <thead className="bg-slate-50 border-b">
@@ -585,14 +665,14 @@ function UsersTable({ users, onManage }) {
         </tr>
       </thead>
       <tbody>
-        {users.length === 0 ? (
+        {list.length === 0 ? (
           <tr>
             <td colSpan="3" className="p-6 text-center text-slate-500">
               No users found.
             </td>
           </tr>
         ) : (
-          users.map(u => (
+          list.map(u => (
             <tr key={u.id} className="border-b">
               <td className="p-4">{u.email}</td>
               <td className="p-4 text-sm text-slate-500">{u.role?.name || 'Unknown'}</td>
