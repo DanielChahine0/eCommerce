@@ -49,7 +49,7 @@ export const searchProducts = (query) => async (dispatch) => {
   dispatch({ type: types.SEARCH_PRODUCTS_REQUEST });
   
   try {
-    const products = await api(`/api/products/search?q=${encodeURIComponent(query)}`);
+    const products = await api(`/api/products/search?name=${encodeURIComponent(query)}`);
     
     dispatch({
       type: types.SEARCH_PRODUCTS_SUCCESS,
