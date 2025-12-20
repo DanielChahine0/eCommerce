@@ -49,7 +49,7 @@ export default function Checkout() {
       
       // Validate basket has items
       if (!basketItems || basketItems.length === 0) {
-        console.warn('⚠️ Checkout attempted with empty basket');
+        console.warn('Checkout attempted with empty basket');
         setError("Your basket is empty. Please add items before checkout.")
         setLoading(false)
         return
@@ -82,8 +82,10 @@ export default function Checkout() {
         
         // After successful order, basket is cleared by backend
         // Refresh basket to reflect the empty state
+        localStorage.clear("shopping_cart");
+          
+
         dispatch({ type: CLEAR_BASKET_SUCCESS })
-        
         // Navigate to thank you page with order details
         nav('/thank-you', { 
           state: { 
@@ -111,8 +113,8 @@ export default function Checkout() {
           }))
         }
         
+        localStorage.clear("guestBasket");
         const order = await dispatch(createOrder(orderData))
-        
         // After successful order, clear basket
         dispatch({ type: CLEAR_BASKET_SUCCESS })
         
