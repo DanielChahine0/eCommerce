@@ -24,14 +24,14 @@ const ProductCard = memo(({ product, onNavigate, priority }) => {
       className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
     >
       <div className="relative h-48 overflow-hidden">
-        <img 
+        {/* <img 
           src={product.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
           alt={product.name} 
           className="w-full h-full object-cover transition-transform duration-500" 
           loading={priority ? "eager" : "lazy"}
           decoding="async"
           fetchPriority={priority ? "high" : "low"}
-        />
+        /> */}
         {product.stockQuantity === 0 && (
           <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
         )}
