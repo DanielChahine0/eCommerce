@@ -89,7 +89,6 @@ export default function Catalog() {
                       alt={p.name}
                       loading="lazy" 
                       decoding="async"
-                      // Add this specific inline style:
                       style={{ 
                         transform: 'translate3d(0, 0, 0)', 
                         contentVisibility: 'auto' 
@@ -99,10 +98,13 @@ export default function Catalog() {
                     {p.stockQuantity === 0 && (
                       <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
                     )}
+                    {p.stockQuantity < 10 && (
+                      <div className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">LOW STOCK</div>
+                    )}
                   </div>
                   
                   <div className="p-5 flex flex-col flex-grow">
-                    <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand?.name || "N/A"}</span>
+                    <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brandName || "N/A"}</span>
                     <h2 className="font-bold text-lg text-slate-800 mb-1 truncate">{p.name}</h2>
                     <div className="mt-auto">
                       <span className="text-xl font-bold text-slate-900">${p.price}</span>

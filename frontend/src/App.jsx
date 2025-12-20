@@ -14,7 +14,7 @@ import SearchProduct from './pages/SearchProduct.jsx'
 import ThankYou from './pages/ThankYou.jsx'
 import { useReduxInitializer } from './redux/reduxInitializer'
 import AdminRoute from './components/AdminRoute'
-import UserRoute from './components/UserRoute.jsx'
+import UserRoute from './components/UserRoute'
 
 import Footer from './components/Footer'
 
@@ -45,7 +45,6 @@ export default function App() {
             </Route>
           </Routes>
         </main>
-
         <Footer />
       </div>
     </AuthProvider>
