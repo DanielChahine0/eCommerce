@@ -68,11 +68,11 @@ export async function api(path, options = {}) {
   if (!res.ok) {
     let errorMessage
     let validationErrors = null
+
+    const resClone = res.clone() // clone to safely read body twice
+
     try {
-      // Try to parse as JSON first
       const errorData = await res.json()
-      
-      // Handle ErrorResponse structure from backend
       if (errorData.validationErrors) {
         validationErrors = errorData.validationErrors
         const errorList = Object.entries(errorData.validationErrors)
@@ -83,8 +83,7 @@ export async function api(path, options = {}) {
         errorMessage = errorData.message || errorData.error || JSON.stringify(errorData)
       }
     } catch {
-      // If not JSON, get as text
-      errorMessage = await res.text()
+      errorMessage = await resClone.text() // read clone instead of original
     }
     
     console.group('⚠️ API Error Response');
