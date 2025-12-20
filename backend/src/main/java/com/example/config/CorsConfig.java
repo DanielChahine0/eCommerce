@@ -31,7 +31,7 @@ public class CorsConfig {
                 "http://localhost:3000", // React default
                 "http://localhost:4200", // Angular default
                 "http://localhost:5173", // Vite default
-                "http://localhost:8081" // Alternative port
+                "https://ecommerce-gedf.onrender.com"
         ));
 
         // Allow specific HTTP methods
