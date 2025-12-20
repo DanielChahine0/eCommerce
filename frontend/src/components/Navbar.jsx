@@ -58,9 +58,6 @@ export default function Navbar() {
             </Button>
 
 
-
-
-          //Search Logic
           <div className='relative flex items-center'>
             <Search className="absolute  left-120 text-slate-500 hover:cursor-pointer" 
             onClick={() => navigate(`/product/${document.querySelector('input').value}`)} />

@@ -4,15 +4,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { searchProducts } from '../redux/products/productActions';
 
+
+const HandleFilter = () => {
+
+};
+
+
+
 const getBrandName = (product) => {
-  if (typeof product.brandName === "string") return product.brandName.trim();
-  if (typeof product.brand === "string") return product.brand.trim();
+  if (typeof product.brandName === "string") return product.brandName;
+  if (typeof product.brand === "string") return product.brand;
   return "";
 };
 
 const getCategoryName = (product) => {
-  if (typeof product.categoryName === "string") return product.categoryName.trim();
-  if (typeof product.category === "string") return product.category.trim();
+  if (typeof product.categoryName === "string") return product.categoryName;
+  if (typeof product.category === "string") return product.category;
   return "";
 };
 
@@ -39,11 +46,22 @@ export default function SearchProduct() {
   const [category, setCategory] = useState("All");
   const [selectedBrands, setSelectedBrands] = useState(new Set());
   const [sortBy, setSortBy] = useState("Price");
+  const [appliedFilters, setAppliedFilters] = useState(null);
   const navigate = useNavigate();
   const selectedBrandsArray = useMemo(
     () => Array.from(selectedBrands),
     [selectedBrands]
   );
+
+  const applyFilters = () => {
+    setAppliedFilters({
+      value,
+      includeOOS,
+      category,
+      selectedBrands: new Set(selectedBrands),
+      sortBy,
+    });
+  };
 
   const { product_name } = useParams();
   const q = useMemo(() => {
@@ -85,10 +103,15 @@ export default function SearchProduct() {
     };
   }, [searchResults]);
 
+
+
+    
   const categoryOptions = useMemo(() => {
     return ["All", ...uniqueCategories];
   }, [uniqueCategories]);
 
+
+  // get Min and Max Prices
   const { minPrice, maxPrice } = useMemo(() => {
     if (!searchResults.length) {
       return { minPrice: 0, maxPrice: 100 };
@@ -124,10 +147,15 @@ export default function SearchProduct() {
     }
   }, [category, categoryOptions]);
 
+
   const filteredResults = useMemo(() => {
-    const normalizedCategory = category?.trim();
+    // If the user hasn't applied filters yet, show raw search results
+    if (!appliedFilters) return searchResults;
+
+    const { value: appliedValue, includeOOS: appliedOOS, category: appliedCategory, selectedBrands: appliedSelectedBrands, sortBy: appliedSort } = appliedFilters;
+    const normalizedCategory = appliedCategory;
     const hasCategoryFilter = normalizedCategory && normalizedCategory !== "All";
-    const brandFilterActive = selectedBrandsArray.length > 0;
+    const brandFilterActive = appliedSelectedBrands && appliedSelectedBrands.size > 0;
 
     const results = searchResults.filter((product) => {
       const price = getPrice(product);
@@ -135,34 +163,26 @@ export default function SearchProduct() {
       const brandName = getBrandName(product);
       const categoryName = getCategoryName(product);
 
-      if (!includeOOS && quantity <= 0) return false;
-      if (Number.isFinite(price) && price > value) return false;
+      if (!appliedOOS && quantity <= 0) return false;
+      if (Number.isFinite(price) && price > appliedValue) return false;
       if (hasCategoryFilter && categoryName.toLowerCase() !== normalizedCategory.toLowerCase()) {
         return false;
       }
-      if (brandFilterActive && !selectedBrands.has(brandName)) {
+      if (brandFilterActive && !appliedSelectedBrands.has(brandName)) {
         return false;
       }
       return true;
     });
 
-    if (sortBy === "Price") {
+    if (appliedSort === "Price") {
       return results.slice().sort((a, b) => getPrice(a) - getPrice(b));
     }
-    if (sortBy === "Newest") {
+    if (appliedSort === "Newest") {
       return results.slice().sort((a, b) => (b.id ?? 0) - (a.id ?? 0));
     }
 
     return results;
-  }, [
-    category,
-    includeOOS,
-    searchResults,
-    selectedBrands,
-    selectedBrandsArray.length,
-    sortBy,
-    value,
-  ]);
+  }, [searchResults, appliedFilters]);
 
 
 
@@ -183,6 +203,7 @@ export default function SearchProduct() {
     setCategory("All");
     setSelectedBrands(new Set());
     setSortBy("Price");
+    setAppliedFilters(null);
   };
 
   return (
@@ -291,7 +312,7 @@ export default function SearchProduct() {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <Button className="h-10 flex-1 rounded-xl bg-slate-900 text-white hover:bg-slate-950">
+                    <Button onClick={applyFilters} className="h-10 flex-1 rounded-xl bg-slate-900 text-white hover:bg-slate-950">
                     Apply Filters
                   </Button>
                   <Button
