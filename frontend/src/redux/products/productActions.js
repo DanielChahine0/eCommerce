@@ -2,17 +2,21 @@ import { api } from '../../api/api';
 import * as types from './productActionTypes';
 
 // Fetch All Products
-export const fetchProducts = () => async (dispatch) => {
+export const fetchProducts = (jwt) => async (dispatch) => {
   dispatch({ type: types.FETCH_PRODUCTS_REQUEST });
   
   try {
-    const products = await api('/api/products');
+    const products = await api('/api/products', {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
     
     dispatch({
       type: types.FETCH_PRODUCTS_SUCCESS,
       payload: products,
     });
-    
+    console.log('Products successfully fetched in action ---->', products);
     return products;
   } catch (error) {
     dispatch({

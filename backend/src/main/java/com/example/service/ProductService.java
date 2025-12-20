@@ -46,6 +46,7 @@ public class ProductService {
         Product product = new Product(
             request.getName(),
             request.getQuantity(),
+            request.getPrice(),
             request.getDescription(),
             request.getImage(),
             brand,
@@ -134,6 +135,7 @@ public class ProductService {
         
         product.setName(request.getName());
         product.setQuantity(request.getQuantity());
+        product.setPrice(request.getPrice());
         product.setDescription(request.getDescription());
         product.setImage(request.getImage());
         product.setBrand(brand);
@@ -170,6 +172,7 @@ public class ProductService {
             product.getId(),
             product.getName(),
             product.getQuantity(),
+            product.getPrice(),
             product.getDescription(),
             product.getImage(),
             product.getBrand().getName(),

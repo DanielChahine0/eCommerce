@@ -107,7 +107,7 @@ export default function Cart() {
               <li key={i.id} className="p-6 flex items-center">
                 <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-slate-200">
                   <img 
-                    src={i.product?.imageUrl || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop"} 
+                    src={i.product?.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop"} 
                     alt={i.product?.name} 
                     className="h-full w-full object-cover" 
                   />
@@ -151,14 +151,17 @@ export default function Cart() {
               <dt className="text-base font-bold text-slate-900">Order Total</dt>
               <dd className="text-xl font-bold text-indigo-600">${total.toLocaleString()}</dd>
             </div>
-            {user ? (
-              <Link to="/checkout" className="mt-6 w-full flex justify-center items-center px-6 py-4 rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 font-medium transition-all shadow-lg shadow-indigo-100">
-                Proceed to Checkout
-              </Link>
-            ) : (
-              <Link to="/login" className="mt-6 w-full flex justify-center items-center px-6 py-4 rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 font-medium transition-all shadow-lg shadow-indigo-100">
-                Login to Checkout
-              </Link>
+            <Link to="/checkout" className="mt-6 w-full flex justify-center items-center px-6 py-4 rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 font-medium transition-all shadow-lg shadow-indigo-100">
+              Proceed to Checkout
+            </Link>
+            {!user && (
+              <p className="text-xs text-slate-500 mt-3 text-center">
+                You can checkout as a guest or{' '}
+                <Link to="/login" className="text-indigo-600 hover:text-indigo-700 font-medium">
+                  login
+                </Link>
+                {' '}for faster checkout
+              </p>
             )}
           </div>
         </div>

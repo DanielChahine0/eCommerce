@@ -5,6 +5,7 @@ public class ProductDTO {
     private Long id;
     private String name;
     private Integer quantity;
+    private Double price;
     private String description;
     private String image;
     private String brandName;
@@ -15,11 +16,12 @@ public class ProductDTO {
     // Constructors
     public ProductDTO() {}
     
-    public ProductDTO(Long id, String name, Integer quantity, String description, String image, 
+    public ProductDTO(Long id, String name, Integer quantity, Double price, String description, String image, 
                       String brandName, Long brandId, String categoryName, Long categoryId) {
         this.id = id;
         this.name = name;
         this.quantity = quantity;
+        this.price = price;
         this.description = description;
         this.image = image;
         this.brandName = brandName;
@@ -51,6 +53,14 @@ public class ProductDTO {
     
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+    
+    public Double getPrice() {
+        return price;
+    }
+    
+    public void setPrice(Double price) {
+        this.price = price;
     }
     
     public String getDescription() {

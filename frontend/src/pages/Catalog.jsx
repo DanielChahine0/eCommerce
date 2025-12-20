@@ -36,7 +36,7 @@ export default function Catalog() {
   useEffect(() => {
     // Mock categories - in production, fetch from API
     const categories = [
-      { id: "101", name: "Jewelry", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
+      { id: "101", name: "Jewelry", image: "https://unsplash.com/pt-br/fotografias/fragmento-de-pedra-branca-e-preta-5ngCICAXiH0" },
       { id: "102", name: "Books", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
       { id: "103", name: "Tech", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
       { id: "104", name: "Clothes", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
@@ -107,9 +107,9 @@ export default function Catalog() {
                 onClick={() => navigate(`/product/${p.id}`)}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
               >
-                <div className="relative">
+                <div className="relative h-48 overflow-hidden">
                   <img 
-                    src={p.imageUrl || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
+                    src={p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
                     alt={p.name} 
                     className="w-full h-full object-cover transition-transform duration-500" 
                   />
@@ -118,7 +118,7 @@ export default function Catalog() {
                   )}
                 </div>
                 <div className="p-5 flex flex-col flex-grow">
-                  <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand?.name || "N/A"}</span>
+                  <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p?.brandName || "N/A"}</span>
                   <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
                   <div className="mt-auto flex items-center justify-between">
                     <span className="text-xl font-bold text-slate-900">${p.price}</span>
@@ -142,7 +142,7 @@ export default function Catalog() {
                 // onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`) }}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
               >
-                <div className="relative">
+                <div className="relative h-48 overflow-hidden">
                   <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
                 </div>
                 <div className="p-5 flex flex-col flex-grow">
@@ -156,7 +156,7 @@ export default function Catalog() {
 
 
 
-          <p className='font-bold mt-6'>Trending Items </p>  
+          {/* <p className='font-bold mt-6'>Trending Items </p>  
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
             {products.map(p => (
               <article
@@ -166,9 +166,9 @@ export default function Catalog() {
                 onClick={() => navigate(`/product/${p.id}`)}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
               >
-                <div className="relative">
+                <div className="relative h-48 overflow-hidden">
                   <img 
-                    src={p.imageUrl || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
+                    src={p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
                     alt={p.name} 
                     className="w-full h-full object-cover transition-transform duration-500" 
                   />
@@ -186,7 +186,7 @@ export default function Catalog() {
                 </div>
               </article>
             ))}
-          </div>
+          </div> */}
         </div>
      </div>
   )

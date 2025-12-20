@@ -1,6 +1,12 @@
 // Initialize token from localStorage on module load
 let AUTH_TOKEN = null
-const BASE_URL = import.meta.env.VITE_API_URL
+// Use environment variable for API base URL
+
+const BASE_URL = import.meta.env.VITE_DEVELOPMENT === 'production' 
+  ? 'http://localhost:8080'
+  : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080');
+
+console.log('API Base URL:', BASE_URL);
 
 // Load token from localStorage when module is first imported
 if (typeof window !== 'undefined') {
@@ -36,13 +42,30 @@ export async function api(path, options = {}) {
   }
 
   // Log request details for debugging
-  console.log('API Request:', {
-    url,
-    method: config.method || 'GET',
-    body: options.body ? JSON.parse(options.body) : null
-  })
+  console.group('🚀 API Request');
+  console.log('URL:', url);
+  console.log('Method:', config.method || 'GET');
+  console.log('Headers:', config.headers);
+  console.log('Body:', options.body ? JSON.parse(options.body) : null);
+  console.groupEnd();
 
-  const res = await fetch(url, config)
+  let res;
+  try {
+    res = await fetch(url, config)
+  } catch (fetchError) {
+    console.group('❌ API Fetch Error');
+    console.error('Network Error:', fetchError.message);
+    console.error('URL:', url);
+    console.error('Stack Trace:', fetchError.stack);
+    console.error('Possible causes:');
+    console.error('  1. Backend server is not running');
+    console.error('  2. Backend is running on a different port');
+    console.error('  3. CORS configuration issue');
+    console.error('  4. Network connectivity problem');
+    console.groupEnd();
+    
+    throw new Error(`Network error: ${fetchError.message}. Please ensure the backend server is running on ${BASE_URL}`);
+  }
 
   if (!res.ok) {
     let errorMessage
@@ -66,20 +89,27 @@ export async function api(path, options = {}) {
       errorMessage = await res.text()
     }
     
-    console.error('API Error:', {
-      status: res.status,
-      statusText: res.statusText,
-      message: errorMessage,
-      validationErrors,
-      url
-    })
+    console.group('⚠️ API Error Response');
+    console.error('Status:', res.status, res.statusText);
+    console.error('URL:', url);
+    console.error('Message:', errorMessage);
+    if (validationErrors) {
+      console.error('Validation Errors:', validationErrors);
+    }
+    console.groupEnd();
     
     const error = new Error(errorMessage || `HTTP ${res.status}: ${res.statusText}`)
+    error.status = res.status;
+    error.statusText = res.statusText;
     error.validationErrors = validationErrors
+    error.url = url;
     throw error
   }
   
   const data = await res.json()
-  console.log('API Response:', data)
+  console.group('✅ API Response');
+  console.log('URL:', url);
+  console.log('Data:', data);
+  console.groupEnd();
   return data
 }
