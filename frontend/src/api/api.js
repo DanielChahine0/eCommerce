@@ -1,7 +1,12 @@
 // Initialize token from localStorage on module load
 let AUTH_TOKEN = null
 // Use environment variable for API base URL
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+
+const BASE_URL = import.meta.env.VITE_DEVELOPMENT === 'production' 
+  ? 'http://localhost:8080'
+  : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080');
+
+console.log('API Base URL:', BASE_URL);
 
 // Load token from localStorage when module is first imported
 if (typeof window !== 'undefined') {
