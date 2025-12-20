@@ -99,11 +99,14 @@ export default function Catalog() {
 
   // Memoize categories to prevent re-creation
   const categories = useMemo(() => [
-    { id: "101", name: "Jewelry", image: "https://unsplash.com/pt-br/fotografias/fragmento-de-pedra-branca-e-preta-5ngCICAXiH0" },
-    { id: "102", name: "Books", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
-    { id: "103", name: "Tech", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
-    { id: "104", name: "Clothes", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
-    { id: "105", name: "Sports", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
+    { id: "1", name: "Electronics", image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80" },
+    { id: "2", name: "Clothing", image: "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=800&q=80" },
+    { id: "3", name: "Books", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80" },
+    { id: "4", name: "Home & Garden", image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=800&q=80" },
+    { id: "5", name: "Sports & Outdoors", image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80" },
+    { id: "6", name: "Toys & Games", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=80" },
+    { id: "7", name: "Food & Beverages", image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80" },
+    { id: "8", name: "Health & Beauty", image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80" },
   ], []);
 
   useEffect(() => {
@@ -169,6 +172,11 @@ export default function Catalog() {
     if (!products?.length) return [];
     return products.slice(0, visibleCount);
   }, [products, visibleCount]);
+
+  const trendingProducts = useMemo(() => {
+    if (!products?.length) return [];
+    return products.slice(0, 10);
+  }, [products]);
 
   const isLoading = productsLoading && products.length === 0;
   const hasMore = visibleProducts.length < products.length;
@@ -246,7 +254,7 @@ export default function Catalog() {
 
           <p className='font-bold'>Trending Items </p>  
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
-            {visibleProducts.map((p, index) => (
+            {trendingProducts.map((p, index) => (
               <ProductCard 
                 key={p.id}
                 product={p}
@@ -257,9 +265,6 @@ export default function Catalog() {
               />
             ))}
           </div>
-          {hasMore && (
-            <div ref={loadMoreRef} className="h-10 w-full" />
-          )}
 
 
 

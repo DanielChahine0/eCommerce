@@ -29,6 +29,7 @@ export default function Navbar() {
   const dispatch = useDispatch()
   const cartCount = useSelector((state) => state.basket.items.length)
   const [isOpen, setIsOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
   const location = useLocation()
 
   useEffect(() => {
@@ -57,18 +58,27 @@ export default function Navbar() {
 
 
           <div className='relative flex items-center'>
-            <Search className="absolute  left-120 text-slate-500 hover:cursor-pointer" 
-            onClick={() => navigate(`/product/${document.querySelector('input').value}`)} />
+            <Search
+              className="absolute left-120 text-slate-500 hover:cursor-pointer"
+              onClick={() => {
+                const q = searchQuery.trim();
+                if (!q) return;
+                navigate(`/search/${encodeURIComponent(q)}`);
+              }}
+            />
 
-
-            <Input type="email" placeholder="Search for an item" className='w-lg'
-            onKeyDown={
-              (e) => {
-              if (e.key !== "Enter") return;
-              const q = e.currentTarget.value.trim();
-              if (!q) return;
-              navigate(`/search/${encodeURIComponent(q)}`);
-            }} 
+            <Input
+              type="text"
+              placeholder="Search for an item"
+              className='w-lg'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                const q = e.currentTarget.value.trim();
+                if (!q) return;
+                navigate(`/search/${encodeURIComponent(q)}`);
+              }}
             />
           </div>
 

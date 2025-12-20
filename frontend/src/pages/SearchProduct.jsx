@@ -52,15 +52,15 @@ export default function SearchProduct() {
     [selectedBrands]
   );
 
-  const { product_name } = useParams();
+  const { name: productName } = useParams();
   const q = useMemo(() => {
-    const raw = product_name ?? "";
+    const raw = productName ?? "";
     try {
       return decodeURIComponent(raw).trim();
     } catch {
       return raw.trim();
     }
-  }, [product_name]);
+  }, [productName]);
 
   const searchResults = useSelector((state) => state.products?.searchResults ?? []);
 
