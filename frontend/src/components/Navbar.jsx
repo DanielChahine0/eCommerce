@@ -59,9 +59,9 @@ export default function Navbar() {
 
           <div className='relative flex items-center'>
             <Search className="absolute  left-120 text-slate-500 hover:cursor-pointer" 
-            onClick={() => navigate(`/product/${document.querySelector('input').value}`)} />
+            onClick={() => navigate(`/search/${document.querySelector('input').value}`)} />
             <Input type="email" placeholder="Search for an item" className='w-lg'
-            onKeyDown={(e) => e.key === 'Enter' && navigate(`/product/${e.target.value}`)} />
+            onKeyDown={(e) => e.key === 'Enter' && navigate(`/search/${e.target.value}`)} />
           </div>      
             {/* if user is signed in - do this, otherwise have different dashboard */}
           <div className="hidden md:flex items-center space-x-8">
@@ -82,7 +82,7 @@ export default function Navbar() {
                 <div className="flex items-center gap-3">
                   {/* Access liked items*/}
                   <div className="flex items-center gap-3">
-                    <Button onClick={() => logout()} variant="outline" className="">
+                    <Button onClick={() => navigate("/liked")} variant="outline" className="">
                         <Heart />
                       </Button>
                

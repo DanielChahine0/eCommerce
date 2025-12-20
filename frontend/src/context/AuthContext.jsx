@@ -24,6 +24,7 @@ export function AuthProvider({ children }) {
         try {
           const userData = await api('/api/auth/validate')
           setUser(userData)
+          console.log('User data:', userData)
         } catch (error) {
           // Token is invalid or expired, clear it
           console.log('Token validation failed, clearing authentication')

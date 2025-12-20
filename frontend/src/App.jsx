@@ -13,7 +13,8 @@ import Orders from './pages/Orders.jsx'
 import SearchProduct from './pages/SearchProduct.jsx'
 import ThankYou from './pages/ThankYou.jsx'
 import { useReduxInitializer } from './redux/reduxInitializer'
-
+import AdminRoute from './components/AdminRoute'
+import UserRoute from './components/UserRoute.jsx'
 
 import Footer from './components/Footer'
 
@@ -35,9 +36,13 @@ export default function App() {
             <Route path="/thank-you" element={<ThankYou />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/orders" element={<Orders />} />
+            <Route element={<AdminRoute />}>
+              <Route path="/admin" element={<Admin />} />
+            </Route>
+            <Route element={<UserRoute />}>
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/orders" element={<Orders />} />
+            </Route>
           </Routes>
         </main>
 
