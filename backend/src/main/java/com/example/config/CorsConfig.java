@@ -28,9 +28,9 @@ public class CorsConfig {
         // Allow requests from your frontend origin
         // Change this to your frontend URL in production
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000", // React default
-                "http://localhost:4200", // Angular default
-                "http://localhost:5173", // Vite default
+                //"http://localhost:3000", // React default
+                //"http://localhost:4200", // Angular default
+                //"http://localhost:5173", // Vite default
                 "https://ecommerce-gedf.onrender.com"
         ));
 

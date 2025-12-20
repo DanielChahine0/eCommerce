@@ -2,7 +2,7 @@
 let AUTH_TOKEN = null
 // Use environment variable for API base URL
 
-const BASE_URL = import.meta.env.VITE_API_URL
+const BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
 
 console.log('API Base URL:', BASE_URL);
 
