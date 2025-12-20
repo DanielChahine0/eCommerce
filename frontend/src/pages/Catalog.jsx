@@ -6,6 +6,9 @@ import {
   Card,
   CardContent,
 } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
+import ProductSkeleton from '../components/ProductSkeleton';
 
 export default function Catalog() {
   const dispatch = useDispatch();
@@ -36,7 +39,7 @@ export default function Catalog() {
   useEffect(() => {
     // Mock categories - in production, fetch from API
     const categories = [
-      { id: "101", name: "Jewelry", image: "https://unsplash.com/pt-br/fotografias/fragmento-de-pedra-branca-e-preta-5ngCICAXiH0" },
+      { id: "101", name: "Jewelry", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
       { id: "102", name: "Books", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
       { id: "103", name: "Tech", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
       { id: "104", name: "Clothes", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800" },
@@ -64,73 +67,53 @@ export default function Catalog() {
 
 
           <div className="max-w-7xl mx-auto px-4">
-          {/* Search and Sort Bar
-          <div className="flex flex-col md:flex-row gap-4 mb-8 items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-            <input 
-              type="text" 
-              placeholder="Search by name, brand, or keyword..." 
-              className="w-full md:w-96 px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none"
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <div className="flex gap-4 w-full md:w-auto">
-              <select 
-                className="px-4 py-2 rounded-lg border border-slate-200 outline-none bg-white"
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
-                <option value="All">All Categories</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Office">Office</option>
-                <option value="Kitchen">Kitchen</option>
-              </select>
-              <select 
-                className="px-4 py-2 rounded-lg border border-slate-200 outline-none bg-white"
-                onChange={(e) => setSortConfig(e.target.value)}
-              >
-                <option value="newest">Sort By: Default</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="name-asc">Name: A-Z</option>
-              </select>
-            </div>
-          </div> */}
-
-
-
-
-          <p className='font-bold'>Trending Items </p>  
-          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
-            {products.map(p => (
-              <article
-                key={p.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => navigate(`/product/${p.id}`)}
-                className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
-                    alt={p.name} 
-                    className="w-full h-full object-cover transition-transform duration-500" 
-                  />
-                  {p.stockQuantity === 0 && (
-                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
-                  )}
-                </div>
-                <div className="p-5 flex flex-col flex-grow">
-                  <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p?.brandName || "N/A"}</span>
-                  <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
-                  <div className="mt-auto flex items-center justify-between">
-                    <span className="text-xl font-bold text-slate-900">${p.price}</span>
+          <p className='font-bold'>Trending Items </p>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+            
+            {/* 2. Show Skeletons while loading */}
+            {loading ? (
+              // Create an array of 10 items to map over
+              [...Array(10)].map((_, i) => <ProductSkeleton key={i} />)
+            ) : (
+              // 3. Render actual products
+              products.map(p => (
+                <article
+                  key={p.id}
+                  onClick={() => navigate(`/product/${p.id}`)}
+                  className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
+                >
+                  <div className="relative h-48 overflow-hidden bg-slate-100">
+                    <img 
+                      src={p.image || "..."} 
+                      alt={p.name}
+                      loading="lazy" 
+                      decoding="async"
+                      // Add this specific inline style:
+                      style={{ 
+                        transform: 'translate3d(0, 0, 0)', 
+                        contentVisibility: 'auto' 
+                      }}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                    />
+                    {p.stockQuantity === 0 && (
+                      <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
+                    )}
                   </div>
-                </div>
-              </article>
-            ))}
+                  
+                  <div className="p-5 flex flex-col flex-grow">
+                    <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand?.name || "N/A"}</span>
+                    <h2 className="font-bold text-lg text-slate-800 mb-1 truncate">{p.name}</h2>
+                    <div className="mt-auto">
+                      <span className="text-xl font-bold text-slate-900">${p.price}</span>
+                    </div>
+                  </div>
+                </article>
+              ))
+            )}
           </div>
 
-
-
-          <p className='font-bold mt-6'>Search by Category</p>  
+                    <p className='font-bold mt-6'>Search by Category</p>  
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
             {categories.map(p => (
               <article
@@ -143,7 +126,18 @@ export default function Catalog() {
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
               >
                 <div className="relative h-48 overflow-hidden">
-                  <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500" />
+                    <img 
+                      src={p.image || "..."} 
+                      alt={p.name}
+                      loading="lazy" 
+                      decoding="async"
+                      // Add this specific inline style:
+                      style={{ 
+                        transform: 'translate3d(0, 0, 0)', 
+                        contentVisibility: 'auto' 
+                      }}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                    />
                 </div>
                 <div className="p-5 flex flex-col flex-grow">
                   <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
@@ -153,40 +147,6 @@ export default function Catalog() {
             ))}
           </div>
 
-
-
-
-          {/* <p className='font-bold mt-6'>Trending Items </p>  
-          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-8">
-            {products.map(p => (
-              <article
-                key={p.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => navigate(`/product/${p.id}`)}
-                className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden flex flex-col cursor-pointer"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"} 
-                    alt={p.name} 
-                    className="w-full h-full object-cover transition-transform duration-500" 
-                  />
-                  {p.stockQuantity === 0 && (
-                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</div>
-                  )}
-                </div>
-                <div className="p-5 flex flex-col flex-grow">
-                  <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{p.brand?.name || "N/A"}</span>
-                  <h2 className="font-bold text-lg text-slate-800 mb-1">{p.name}</h2>
-                  <div className="mt-auto flex items-center justify-between">
-                    <span className="text-xl font-bold text-slate-900">${p.price}</span>
-                    <span className="text-sm text-indigo-600 font-medium">View Details →</span>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div> */}
         </div>
      </div>
   )
