@@ -15,6 +15,20 @@ import ThankYou from './pages/ThankYou.jsx'
 import { useReduxInitializer } from './redux/reduxInitializer'
 import AdminRoute from './components/AdminRoute.jsx'
 import UserRoute from './components/UserRoute.jsx'
+import CacheStatus from './components/CacheStatus'
+
+const Catalog = lazy(() => import('./pages/Catalog'))
+const SearchProduct = lazy(() => import('./pages/SearchProduct.jsx'))
+const ProductDetails = lazy(() => import('./pages/ProductDetails'))
+const Cart = lazy(() => import('./pages/Cart'))
+const Checkout = lazy(() => import('./pages/Checkout'))
+const ThankYou = lazy(() => import('./pages/ThankYou.jsx'))
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
+const Admin = lazy(() => import('./pages/Admin'))
+const Profile = lazy(() => import('./pages/Profile.jsx'))
+const Orders = lazy(() => import('./pages/Orders.jsx'))
+const Likes = lazy(() => import('./pages/Likes.jsx'))
 
 import Footer from './components/Footer'
 
@@ -42,8 +56,10 @@ export default function App() {
             <Route element={<UserRoute />}>
               <Route path="/profile" element={<Profile />} />
               <Route path="/orders" element={<Orders />} />
+
             </Route>
-          </Routes>
+              <Route path="/likes" element={<Likes />} />
+            </Routes>
         </main>
         <Footer />
       </div>

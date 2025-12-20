@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchProductDetails } from "../redux/products/productActions";
 import { addToBasket, addToLocalBasket } from "../redux/basket/basketActions";
 import { useAuth } from "../context/AuthContext";
-import { ShoppingCart, ArrowLeft, Check, AlertCircle, Package, Minus, Plus, Star } from "lucide-react";
+import { ShoppingCart, ArrowLeft, AlertCircle, Package, Minus, Plus, Heart } from "lucide-react";
+import { isProductLiked, toggleLikedProduct } from "../utils/likes";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -16,6 +17,7 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [addingToCart, setAddingToCart] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
 
   const { products, currentProduct } = useSelector((state) => state.products);
   const product = products.find((p) => p.id === Number(id)) || 
@@ -35,6 +37,11 @@ export default function ProductDetails() {
     loadProduct();
   }, [id, dispatch]);
 
+  useEffect(() => {
+    if (!product) return;
+    setIsLiked(isProductLiked(product.id, user));
+  }, [product, user]);
+
   const handleAddToCart = async () => {
     const finalQty = quantity === "" ? 1 : quantity;
 
@@ -51,6 +58,12 @@ export default function ProductDetails() {
     } finally {
       setAddingToCart(false);
     }
+  };
+
+  const handleToggleLike = () => {
+    if (!product) return;
+    const updated = toggleLikedProduct(product, user);
+    setIsLiked(updated.some((item) => item.id === product.id));
   };
 
   const handleQuantityChange = (e) => {
@@ -222,6 +235,19 @@ export default function ProductDetails() {
                 className={`flex-1 flex items-center justify-center gap-3 rounded-lg px-8 py-3 text-base font-medium text-white transition-all shadow-sm ${isOutOfStock ? 'bg-gray-300 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800'}`}
               >
                 {addingToCart ? "Adding..." : isOutOfStock ? "Currently Unavailable" : <><ShoppingCart className="w-5 h-5" /> Add to Cart</>}
+              </button>
+              <button
+                type="button"
+                onClick={handleToggleLike}
+                className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-all ${
+                  isLiked
+                    ? "border-red-200 text-red-600 hover:bg-red-50"
+                    : "border-gray-300 text-gray-700 hover:border-red-200 hover:text-red-600"
+                }`}
+                aria-pressed={isLiked}
+              >
+                <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+                {isLiked ? "Liked" : "Like"}
               </button>
             </div>
           </div>

@@ -7,12 +7,16 @@ import { useNavigate } from "react-router-dom";
 export default function Orders() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, token, loading: authLoading } = useAuth();
   const orders = useSelector((state) => state.orders.orders);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     if (!user) {
       navigate("/login");
       return;
@@ -21,7 +25,8 @@ export default function Orders() {
     const loadOrders = async () => {
       try {
         setLoading(true);
-        await dispatch(fetchOrders());
+        setError("");
+        await dispatch(fetchOrders({ userId: user.id, jwt: token }));
       } catch (err) {
         setError("Failed to load orders");
         console.error(err);
@@ -30,7 +35,7 @@ export default function Orders() {
       }
     };
     loadOrders();
-  }, [user, dispatch, navigate]);
+  }, [user, token, authLoading, dispatch, navigate]);
 
   if (loading) {
     return (

@@ -7,10 +7,11 @@ export const fetchOrders = (auth) => async (dispatch) => {
 
   try {
     const jwt = typeof auth === 'string' ? auth : (auth && auth.jwt) ? auth.jwt : null;
+    const userId = auth && typeof auth === 'object' ? auth.userId : null;
     const options = jwt ? { headers: { Authorization: `Bearer ${jwt}` } } : undefined;
     
-
-    const orders = await api('/api/orders', options);
+    const endpoint = userId ? `/api/orders/user/${userId}` : '/api/orders';
+    const orders = await api(endpoint, options);
 
     dispatch({
       type: types.FETCH_ORDERS_SUCCESS,

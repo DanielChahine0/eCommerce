@@ -2,7 +2,10 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useId, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import { Heart } from "lucide-react";
 import { searchProducts } from '../redux/products/productActions';
+import { useAuth } from "../context/AuthContext";
+import { getLikedProducts, toggleLikedProduct } from "../utils/likes";
 
 const getBrandName = (product) => {
   if (typeof product.brandName === "string") return product.brandName.trim();
@@ -31,6 +34,7 @@ const getPrice = (product) => {
 export default function SearchProduct() {
   const uid = useId();
   const dispatch = useDispatch();
+  const { user } = useAuth();
 
   const step = 1;
 
@@ -39,6 +43,9 @@ export default function SearchProduct() {
   const [category, setCategory] = useState("All");
   const [selectedBrands, setSelectedBrands] = useState(new Set());
   const [sortBy, setSortBy] = useState("Price");
+  const [likedIds, setLikedIds] = useState(
+    () => new Set(getLikedProducts(user).map((item) => item.id))
+  );
   const navigate = useNavigate();
   const selectedBrandsArray = useMemo(
     () => Array.from(selectedBrands),
@@ -62,6 +69,10 @@ export default function SearchProduct() {
       dispatch(searchProducts(q));
     }
   }, [dispatch, q]);
+
+  useEffect(() => {
+    setLikedIds(new Set(getLikedProducts(user).map((item) => item.id)));
+  }, [user]);
 
 
 
@@ -182,6 +193,12 @@ export default function SearchProduct() {
     setCategory("All");
     setSelectedBrands(new Set());
     setSortBy("Price");
+  };
+
+  const handleToggleLike = (event, product) => {
+    event.stopPropagation();
+    const updated = toggleLikedProduct(product, user);
+    setLikedIds(new Set(updated.map((item) => item.id)));
   };
 
   return (
@@ -344,6 +361,7 @@ export default function SearchProduct() {
                   {filteredResults.map((product) => {
                     const isOutOfStock = getQuantity(product) <= 0;
                     const brandName = getBrandName(product);
+                    const isLiked = likedIds.has(product.id);
 
                     return (
                       <div
@@ -361,6 +379,14 @@ export default function SearchProduct() {
                             className="h-full w-full object-cover"
                             loading="lazy"
                           />
+                          <button
+                            type="button"
+                            onClick={(event) => handleToggleLike(event, product)}
+                            className="absolute right-2 top-2 rounded-full bg-white/90 p-1.5 text-slate-700 shadow-sm transition hover:text-red-500"
+                            aria-label={isLiked ? "Unlike product" : "Like product"}
+                          >
+                            <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+                          </button>
                           {isOutOfStock && (
                             <div className="absolute left-2 top-2 rounded bg-red-500 px-2 py-1 text-[10px] font-semibold text-white">
                               OUT OF STOCK
