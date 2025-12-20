@@ -6,6 +6,45 @@
 - Daniel Chahine
 - Muhammad Zamin
 
+# How to run
+## Prerequisites
+If you want to run the project locally, ensure you have the following installed:
+- Java Development Kit (JDK) 11 or higher.
+- Docker installed on your machine.
+
+## Steps to Run
+1. Clone the repository:
+```bash
+   git clone https://github.com/DanielChahine0/ecommerce.git
+```
+
+**Backend**
+2. Navigate to the backend directory:
+```bash
+   cd ecommerce/backend
+```
+3. Build and run the Docker containers:
+```bash
+   docker-compose up --build
+```
+This will set up the PostgreSQL database and the Spring Boot application.
+
+**Frontend**
+4. Open a new terminal window and navigate to the frontend directory:
+```bash
+   cd ecommerce/frontend
+```
+
+5. Install the necessary dependencies:
+```bash
+   npm install
+```
+
+6. Start the React development server:
+```bash
+   npm run dev
+```
+
 # Basic Functionalities
 ## User Functionalities
 - Registration: Users can create an account by providing necessary details such as username, email, password, and address.
