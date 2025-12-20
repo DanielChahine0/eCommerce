@@ -4,23 +4,39 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { searchProducts } from '../redux/products/productActions';
 
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-const categories = ["Electronics", "Books", "Clothes", "Sports", "Home", "Toys"];
-const brands = ["Adidas", "Nike", "Puma", "Reebok", "Under Armour"];
+const getBrandName = (product) => {
+  if (typeof product.brandName === "string") return product.brandName.trim();
+  if (typeof product.brand === "string") return product.brand.trim();
+  return "";
+};
+
+const getCategoryName = (product) => {
+  if (typeof product.categoryName === "string") return product.categoryName.trim();
+  if (typeof product.category === "string") return product.category.trim();
+  return "";
+};
+
+const getQuantity = (product) => {
+  if (Number.isFinite(product.quantity)) return product.quantity;
+  if (Number.isFinite(product.stockQuantity)) return product.stockQuantity;
+  return 0;
+};
+
+const getPrice = (product) => {
+  if (Number.isFinite(product.price)) return product.price;
+  const parsed = Number(product.price);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
 
 export default function SearchProduct() {
   const uid = useId();
   const dispatch = useDispatch();
 
-
-
-  const min = 1;
-  const max = 100;
   const step = 1;
 
-  const [value, setValue] = useState(7);
+  const [value, setValue] = useState(0);
   const [includeOOS, setIncludeOOS] = useState(false);
-  const [category, setCategory] = useState(categories[0]);
+  const [category, setCategory] = useState("All");
   const [selectedBrands, setSelectedBrands] = useState(new Set());
   const [sortBy, setSortBy] = useState("Price");
   const navigate = useNavigate();
@@ -56,9 +72,8 @@ export default function SearchProduct() {
     const categorySet = new Set();
 
     for (const p of searchResults) {
-      // adjust these if your fields are nested (e.g., p.brand.name)
-      const brand = typeof p.brand === "string" ? p.brand.trim() : "";
-      const category = typeof p.category === "string" ? p.category.trim() : "";
+      const brand = getBrandName(p);
+      const category = getCategoryName(p);
 
       if (brand) brandSet.add(brand);
       if (category) categorySet.add(category);
@@ -70,6 +85,84 @@ export default function SearchProduct() {
     };
   }, [searchResults]);
 
+  const categoryOptions = useMemo(() => {
+    return ["All", ...uniqueCategories];
+  }, [uniqueCategories]);
+
+  const { minPrice, maxPrice } = useMemo(() => {
+    if (!searchResults.length) {
+      return { minPrice: 0, maxPrice: 100 };
+    }
+
+    let minFound = Infinity;
+    let maxFound = 0;
+
+    for (const p of searchResults) {
+      const price = getPrice(p);
+      if (!Number.isFinite(price)) continue;
+      if (price < minFound) minFound = price;
+      if (price > maxFound) maxFound = price;
+    }
+
+    if (!Number.isFinite(minFound) || !Number.isFinite(maxFound)) {
+      return { minPrice: 0, maxPrice: 100 };
+    }
+
+    return {
+      minPrice: Math.floor(minFound),
+      maxPrice: Math.ceil(maxFound),
+    };
+  }, [searchResults]);
+
+  useEffect(() => {
+    setValue(maxPrice);
+  }, [maxPrice]);
+
+  useEffect(() => {
+    if (!categoryOptions.includes(category)) {
+      setCategory("All");
+    }
+  }, [category, categoryOptions]);
+
+  const filteredResults = useMemo(() => {
+    const normalizedCategory = category?.trim();
+    const hasCategoryFilter = normalizedCategory && normalizedCategory !== "All";
+    const brandFilterActive = selectedBrandsArray.length > 0;
+
+    const results = searchResults.filter((product) => {
+      const price = getPrice(product);
+      const quantity = getQuantity(product);
+      const brandName = getBrandName(product);
+      const categoryName = getCategoryName(product);
+
+      if (!includeOOS && quantity <= 0) return false;
+      if (Number.isFinite(price) && price > value) return false;
+      if (hasCategoryFilter && categoryName.toLowerCase() !== normalizedCategory.toLowerCase()) {
+        return false;
+      }
+      if (brandFilterActive && !selectedBrands.has(brandName)) {
+        return false;
+      }
+      return true;
+    });
+
+    if (sortBy === "Price") {
+      return results.slice().sort((a, b) => getPrice(a) - getPrice(b));
+    }
+    if (sortBy === "Newest") {
+      return results.slice().sort((a, b) => (b.id ?? 0) - (a.id ?? 0));
+    }
+
+    return results;
+  }, [
+    category,
+    includeOOS,
+    searchResults,
+    selectedBrands,
+    selectedBrandsArray.length,
+    sortBy,
+    value,
+  ]);
 
 
 
@@ -85,9 +178,9 @@ export default function SearchProduct() {
   };
 
   const resetFilters = () => {
-    setValue(7);
+    setValue(maxPrice);
     setIncludeOOS(false);
-    setCategory(categories[0]);
+    setCategory("All");
     setSelectedBrands(new Set());
     setSortBy("Price");
   };
@@ -122,8 +215,8 @@ export default function SearchProduct() {
 
                   <input
                     type="range"
-                    min={min}
-                    max={max}
+                    min={minPrice}
+                    max={maxPrice}
                     step={step}
                     value={value}
                     onChange={(e) => setValue(Number(e.target.value))}
@@ -132,8 +225,8 @@ export default function SearchProduct() {
                   />
 
                   <div className="mt-2 flex justify-between text-[11px] text-slate-900/70">
-                    <span>${min}</span>
-                    <span>${max}</span>
+                    <span>${minPrice}</span>
+                    <span>${maxPrice}</span>
                   </div>
                 </div>
 
@@ -159,7 +252,7 @@ export default function SearchProduct() {
                     onChange={(e) => setCategory(e.target.value)}
                     className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs text-slate-900 shadow-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-900/20"
                   >
-                    {categories.map((c) => (
+                    {categoryOptions.map((c) => (
                       <option key={c} value={c}>
                         {c}
                       </option>
@@ -226,7 +319,7 @@ export default function SearchProduct() {
               {q || "Search"}
             </div>
                             <div className="mt-1 text-xs text-slate-900/70">
-                              Showing {cards.length} items
+                              Showing {filteredResults.length} items
                             </div>
 
                             </div>
@@ -243,34 +336,63 @@ export default function SearchProduct() {
                            </div>
               </div>
 
-              <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                {cards.map((n) => (
-                  <div
-                    key={n}
-                    /*<-- onClick={() => navigate("/product/id */ 
-                    onClick={() => navigate("/product/101")}
-                    className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm hover:cursor-pointer hover:shadow-md"
-                  >
-                    <div className="h-32 bg-slate-200/70" />
-                    <div className="p-3">
-                      <div className="h-3 w-4/5 rounded bg-slate-200" />
-                      <div className="mt-2 h-3 w-2/3 rounded bg-slate-200" />
-                      <div className="mt-3 flex items-center justify-between">
-                        <div className="h-6 w-16 rounded-full bg-slate-900/10" />
-                        <div className="h-6 w-10 rounded-full bg-slate-900/10" />
-                      </div>
-                    </div>
-                    <div className="border-t border-slate-200 p-3">
-                      <button
-                        type="button"
-                        className="w-full rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-slate-900/25"
+              {filteredResults.length === 0 ? (
+                <div className="mt-10 text-center text-sm text-slate-700">
+                  No items match your search and filters.
+                </div>
+              ) : (
+                <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                  {filteredResults.map((product) => {
+                    const isOutOfStock = getQuantity(product) <= 0;
+                    const brandName = getBrandName(product);
+
+                    return (
+                      <div
+                        key={product.id}
+                        onClick={() => navigate(`/product/${product.id}`)}
+                        className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm hover:cursor-pointer hover:shadow-md"
                       >
-                        View
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                        <div className="relative h-32 bg-slate-200/70">
+                          <img
+                            src={
+                              product.image ||
+                              "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"
+                            }
+                            alt={product.name}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                          />
+                          {isOutOfStock && (
+                            <div className="absolute left-2 top-2 rounded bg-red-500 px-2 py-1 text-[10px] font-semibold text-white">
+                              OUT OF STOCK
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-3">
+                          <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                            {brandName || "N/A"}
+                          </div>
+                          <div className="mt-1 text-sm font-semibold text-slate-900">
+                            {product.name}
+                          </div>
+                          <div className="mt-2 flex items-center justify-between text-xs text-slate-700">
+                            <span>${getPrice(product).toFixed(2)}</span>
+                            <span>{isOutOfStock ? "0 left" : `${getQuantity(product)} left`}</span>
+                          </div>
+                        </div>
+                        <div className="border-t border-slate-200 p-3">
+                          <button
+                            type="button"
+                            className="w-full rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-slate-900/25"
+                          >
+                            View
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
               <div className="mt-8 flex justify-center">
                 <Button
