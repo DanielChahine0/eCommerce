@@ -1,4 +1,4 @@
-# eCommerce Website (EStore)
+# Kuik
 
 Team Members
 - Yuriy Kotyashko
